@@ -1,10 +1,10 @@
 # Soraban Engineering Project
 The following is a take-home project for Soraban engineering candidates.
 
-## Instructions
+## Submission Instructions
 - Fork the repository
 - Create a pull request with your project submission
-- In the PR, include a Loom (or other video) that shows the functionality you built and explains how the code works
+- In the PR, include any necessary sample files and a Loom (or other video) showcasing the functionality you built and explains how the code works
 
 # **Scalable Bookkeeping System with Automated Categorization**
 
@@ -18,15 +18,11 @@ Build a **minimal yet scalable bookkeeping system** with the following features:
 4. **Scalability & Performance Optimization** – Efficiently handle large data sets (e.g., 50k+ transactions).
 5. **User-friendly Review System** – A dashboard that highlights transactions needing review.
 
----
-
 ## **Tech Stack**
 
 - **Backend:** Ruby on Rails (preferred), Node.js, Django, or similar.
 - **Frontend:** React (preferred) or Vue.js.
 - **Database:** PostgreSQL (preferred) or MySQL.
-
----
 
 ## **Project Requirements**
 
@@ -64,15 +60,11 @@ Build a **minimal yet scalable bookkeeping system** with the following features:
     - **Flagged anomalies** requiring manual verification.
 - Users should be able to **approve, edit, or delete** flagged transactions.
 
----
-
 ## **Bonus Challenges (For the Overachievers)**
 
 1. **Basic API for Transactions** – Expose a REST API for CRUD operations.
 2. **Real-time Anomaly Detection** – Use WebSockets or polling for updates.
 3. **Graph-based Spending Summary** – Show user spending trends.
-
----
 
 ## **What We’re Evaluating**
 
@@ -88,16 +80,7 @@ Build a **minimal yet scalable bookkeeping system** with the following features:
 
 ✅ **Problem-Solving Skills** – Ability to balance features, scalability, and performance.
 
----
-
-## **Submission Requirements**
-
-- **GitHub repo** with clear instructions to run the project.
-- **Short README** explaining architecture & design choices.
-- **CSV sample file** used for import testing.
-- **Loom Video** showcasing key features.
-
-## Inspirations/Examples
+## Similar Products Examples for Inspiration
 
 - Kick.co
 - Quickbooks Online

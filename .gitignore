@@ -35,3 +35,6 @@
 
 # Ignore macOS metadata files
 .DS_Store
+
+# Ignore RubyMine project files
+.idea/

@@ -11,4 +11,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  require 'sidekiq/web'
+
+  # Mount Sidekiq Web UI (admin only, secure later)
+  mount Sidekiq::Web => '/sidekiq'
 end

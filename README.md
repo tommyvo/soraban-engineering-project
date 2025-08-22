@@ -86,3 +86,72 @@ Build a **minimal yet scalable bookkeeping system** with the following features:
 - Kick.co
 - Quickbooks Online
 - Xero
+
+# Local Setup & Usage Guide
+
+## Prerequisites
+
+- macOS (tested)
+- Homebrew (https://brew.sh/)
+
+## 1. Install System Dependencies via Homebrew
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install ruby
+brew install postgresql
+brew install redis
+brew install node
+brew install yarn
+```
+
+## 2. Setup Database & Redis
+
+```bash
+brew services start postgresql
+brew services start redis
+```
+
+## 3. Setup Rails Backend
+
+```bash
+bundle install
+bin/rails db:create
+```
+
+## 4. Setup Frontend
+
+```bash
+cd frontend
+yarn install
+```
+
+## 5. Running the App (Dev Mode)
+
+In the project root:
+
+```bash
+bin/dev
+```
+
+This will start Rails, Sidekiq, and the frontend (Vite/React) server.
+
+## 6. Running Tests
+
+### Backend (RSpec)
+```bash
+bundle exec rspec
+```
+
+### Frontend (Jest)
+```bash
+cd frontend
+yarn test
+```
+
+---
+
+## Troubleshooting
+- Ensure PostgreSQL and Redis are running (`brew services list`).
+- If you see errors, try restarting your terminal and running the steps again.
+- For more help, see the comments in each section above.

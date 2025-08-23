@@ -1,4 +1,5 @@
 class Api::V1::RulesController < ApplicationController
+  skip_before_action :verify_authenticity_token
   before_action :set_rule, only: [:show, :update, :destroy]
 
   def index

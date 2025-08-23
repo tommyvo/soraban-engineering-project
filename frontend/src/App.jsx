@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import TransactionList from './TransactionList';
 import TransactionForm from './TransactionForm';
+import RuleManager from './RuleManager';
+import Navigation from './Navigation';
 import './App.css';
 
 function CsvImportForm({ onSuccess }) {
@@ -52,14 +54,19 @@ function CsvImportForm({ onSuccess }) {
 
 function App() {
   const [refreshFlag, setRefreshFlag] = useState(0);
+  const [page, setPage] = useState('transactions');
   const refreshTransactions = useCallback(() => setRefreshFlag(f => f + 1), []);
 
   return (
     <div className="app-container">
+      <Navigation page={page} setPage={setPage} />
       <div className="app-card">
-        <TransactionList refreshFlag={refreshFlag} />
-        <TransactionForm onSuccess={refreshTransactions} />
-        <CsvImportForm onSuccess={refreshTransactions} />
+        {page === 'transactions' && <>
+          <TransactionList refreshFlag={refreshFlag} />
+          <TransactionForm onSuccess={refreshTransactions} />
+          <CsvImportForm onSuccess={refreshTransactions} />
+        </>}
+        {page === 'rules' && <RuleManager />}
       </div>
     </div>
   );

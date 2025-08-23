@@ -1,13 +1,18 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      resources :transactions, only: [:index, :show, :create] do
+      resources :transactions, only: [:index, :show, :create, :update, :destroy] do
         collection do
           post :bulk_update
         end
+        member do
+          post :approve
+        end
       end
+
       resources :csv_imports, only: [:create]
       resources :rules
+      resources :flagged_transactions, only: [:index]
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

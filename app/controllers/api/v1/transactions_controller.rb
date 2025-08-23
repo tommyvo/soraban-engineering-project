@@ -1,7 +1,29 @@
 module Api
   module V1
     class TransactionsController < ActionController::API
-      before_action :set_transaction, only: [:show]
+      before_action :set_transaction, only: [:show, :update, :destroy, :approve]
+
+      # PATCH /api/v1/transactions/:id
+      def update
+        if @transaction.update(transaction_params)
+          render json: @transaction
+        else
+          render json: { errors: @transaction.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      # DELETE /api/v1/transactions/:id
+      def destroy
+        @transaction.destroy
+        head :no_content
+      end
+
+      # POST /api/v1/transactions/:id/approve
+      def approve
+        # For now, just return success; you can extend this to set a reviewed_at or status field
+        # TODO: make this do something
+        render json: { approved: true }
+      end
 
       # GET /api/v1/transactions
       def index

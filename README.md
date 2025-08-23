@@ -128,7 +128,7 @@ yarn install
 
 ## 5. Running the App (Dev Mode)
 
-Start the Rails API server:
+Start the Rails API server and Sidekiq:
 
 ```bash
 bin/dev

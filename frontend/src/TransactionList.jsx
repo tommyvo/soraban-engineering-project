@@ -98,7 +98,6 @@ export default function TransactionList({ refreshFlag }) {
             <th>Description</th>
             <th>Amount</th>
             <th>Category</th>
-            <th>Metadata</th>
           </tr>
         </thead>
         <tbody>
@@ -116,7 +115,6 @@ export default function TransactionList({ refreshFlag }) {
               <td>{tx.description}</td>
               <td>{tx.amount}</td>
               <td>{tx.category}</td>
-              <td>{JSON.stringify(tx.metadata)}</td>
             </tr>
           ))}
         </tbody>

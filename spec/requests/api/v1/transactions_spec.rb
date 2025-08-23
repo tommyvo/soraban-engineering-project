@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Transactions", type: :request do
-  let(:valid_attributes) { attributes_for(:transaction, metadata: {source: "manual"}) }
+  let(:valid_attributes) { attributes_for(:transaction) }
 
   describe "GET /api/v1/transactions" do
     it "returns a list of transactions" do

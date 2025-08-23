@@ -5,8 +5,7 @@ const initialState = {
   description: "",
   amount: "",
   category: "",
-  date: today,
-  metadata: ""
+  date: today
 };
 
 export default function TransactionForm({ onSuccess }) {
@@ -21,20 +20,12 @@ export default function TransactionForm({ onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus(null);
-    let metadataObj = {};
-    try {
-      metadataObj = form.metadata ? JSON.parse(form.metadata) : {};
-    } catch {
-      setStatus({ error: "Metadata must be valid JSON" });
-      return;
-    }
     const payload = {
       transaction: {
         description: form.description,
         amount: form.amount,
         category: form.category,
-        date: form.date,
-        metadata: metadataObj
+        date: form.date
       }
     };
     try {
@@ -79,11 +70,7 @@ export default function TransactionForm({ onSuccess }) {
           <input name="category" value={form.category} onChange={handleChange} />
         </label>
       </div>
-      <div>
-        <label>Metadata (JSON, optional)<br />
-          <input name="metadata" value={form.metadata} onChange={handleChange} placeholder='{"source":"manual"}' />
-        </label>
-      </div>
+
       <button type="submit" className="submit-button">Add</button>
       {status?.success && <div className="status-success">{status.success}</div>}
       {status?.error && <div className="status-error">{status.error}</div>}

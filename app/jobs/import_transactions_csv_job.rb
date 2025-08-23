@@ -37,24 +37,14 @@ class ImportTransactionsCsvJob < ApplicationJob
           next
         end
 
-        # Validate metadata
-        metadata = {}
-        if row_hash['metadata'].present?
-          begin
-            metadata = JSON.parse(row_hash['metadata'])
-          rescue => e
-            errors << {row: row_hash, error: 'Invalid metadata JSON'}
-            next
-          end
-        end
+
 
         begin
           Transaction.create!(
             description: row_hash['description'],
             amount: row_hash['amount'],
             category: row_hash['category'],
-            date: parsed_date,
-            metadata: metadata
+            date: parsed_date
           )
           imported += 1
         rescue => e

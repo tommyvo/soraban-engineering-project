@@ -3,7 +3,7 @@ require 'rails_helper'
 describe ImportTransactionsCsvJob, type: :job do
   let(:csv_import) { create(:csv_import) }
   let(:csv_content) do
-    "description,amount,category,date,metadata\nCoffee,3.50,Food,08/23/2025,\"{\"\"note\"\":\"\"morning\"\"}\"\nBook,12.99,Education,08/22/2025,\"{\"\"author\"\":\"\"Doe\"\"}\""
+    "description,amount,category,date\nCoffee,3.50,Food,08/23/2025\nBook,12.99,Education,08/22/2025"
   end
 
   before do
@@ -53,19 +53,6 @@ describe ImportTransactionsCsvJob, type: :job do
       expect(csv_import.result['errors'].first['error']).to eq('Invalid amount')
     end
 
-    it 'logs error for invalid metadata JSON' do
-      bad_csv = "description,amount,category,date,metadata\nCoffee,3.50,Food,08/23/2025,{notjson}"
-      csv_import.csv.attach(
-        io: StringIO.new(bad_csv),
-        filename: 'bad.csv',
-        content_type: 'text/csv'
-      )
-      expect {
-        described_class.perform_now(csv_import.id)
-      }.not_to change { Transaction.count }
-      csv_import.reload
-      expect(csv_import.result['errors'].first['error']).to eq('Invalid metadata JSON')
-    end
 
     it 'logs error for duplicate description, amount, category, and date' do
       create(:transaction, description: 'Coffee', amount: 3.50, category: 'Food', date: Date.strptime('08/23/2025', '%m/%d/%Y'))

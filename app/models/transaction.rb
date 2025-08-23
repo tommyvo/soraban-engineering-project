@@ -1,4 +1,6 @@
 class Transaction < ApplicationRecord
+  has_many :anomalies, dependent: :destroy
+
   validates :description, uniqueness: { scope: [:amount, :category, :date], message: "with this amount, category, and date already exists" }
   validates :amount, presence: true, numericality: true
 

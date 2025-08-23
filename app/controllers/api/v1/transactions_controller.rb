@@ -20,9 +20,8 @@ module Api
 
       # POST /api/v1/transactions/:id/approve
       def approve
-        # For now, just return success; you can extend this to set a reviewed_at or status field
-        # TODO: make this do something
-        render json: { approved: true }
+        @transaction.update!(approved: true, approved_at: Time.current, reviewed_by: "user")
+        render json: @transaction
       end
 
       # GET /api/v1/transactions

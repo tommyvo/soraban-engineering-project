@@ -48,4 +48,18 @@ RSpec.describe "Api::V1::Transactions", type: :request do
       expect(tx.anomalies.first.anomaly_type).to eq("MissingData")
     end
   end
+
+  describe "POST /api/v1/transactions/:id/approve" do
+    it "approves a transaction and sets approval fields" do
+      tx = create(:transaction, description: nil, amount: rand(1000..9999), date: Date.today - rand(1..100))
+
+      post "/api/v1/transactions/#{tx.id}/approve"
+      expect(response).to have_http_status(:ok)
+
+      tx = Transaction.find(tx.id)
+      expect(tx.approved).to eq(true)
+      expect(tx.approved_at).not_to be_nil
+      expect(tx.reviewed_by).to eq("user")
+    end
+  end
 end

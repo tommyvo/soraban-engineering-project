@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe ImportTransactionsCsvJob, type: :job do
-  let(:csv_import) { CsvImport.create!(status: 'pending') }
+  let(:csv_import) { create(:csv_import) }
   let(:csv_content) do
     "description,amount,category,date,metadata\nCoffee,3.50,Food,08/23/2025,\"{\"\"note\"\":\"\"morning\"\"}\"\nBook,12.99,Education,08/22/2025,\"{\"\"author\"\":\"\"Doe\"\"}\""
   end
@@ -68,7 +68,7 @@ describe ImportTransactionsCsvJob, type: :job do
     end
 
     it 'logs error for duplicate description, amount, category, and date' do
-      Transaction.create!(description: 'Coffee', amount: 3.50, category: 'Food', date: Date.strptime('08/23/2025', '%m/%d/%Y'))
+      create(:transaction, description: 'Coffee', amount: 3.50, category: 'Food', date: Date.strptime('08/23/2025', '%m/%d/%Y'))
       dup_csv = "description,amount,category,date\nCoffee,3.50,Food,08/23/2025"
       csv_import.csv.attach(
         io: StringIO.new(dup_csv),

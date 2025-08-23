@@ -24,6 +24,17 @@ module Api
         end
       end
 
+      # POST /api/v1/transactions/bulk_update
+      def bulk_update
+        ids = params[:ids]
+        category = params[:category]
+        if ids.blank? || category.blank?
+          return render json: { error: 'ids and category are required' }, status: :bad_request
+        end
+        updated = Transaction.where(id: ids).update_all(category: category, updated_at: Time.current)
+        render json: { updated: updated }, status: :ok
+      end
+
       private
 
       def set_transaction

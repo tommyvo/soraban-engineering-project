@@ -13,21 +13,47 @@ class ImportTransactionsCsvJob < ApplicationJob
       csv_file = csv_import.csv.download
 
       CSV.parse(csv_file, headers: true) do |row|
+        row_hash = row.to_h
+        # Check for required fields
+        required = %w[description amount category]
+        missing = required.select { |f| row_hash[f].blank? }
+        if missing.any?
+          errors << {row: row_hash, error: "Missing fields: #{missing.join(', ')}"}
+          next
+        end
+
+        # Validate amount
+        unless row_hash['amount'].to_s.match?(/\A-?\d+(\.\d+)?\z/)
+          errors << {row: row_hash, error: 'Invalid amount'}
+          next
+        end
+
+        # Validate metadata
+        metadata = {}
+        if row_hash['metadata'].present?
+          begin
+            metadata = JSON.parse(row_hash['metadata'])
+          rescue => e
+            errors << {row: row_hash, error: 'Invalid metadata JSON'}
+            next
+          end
+        end
+
         begin
           Transaction.create!(
-            description: row['description'],
-            amount: row['amount'],
-            category: row['category'],
-            metadata: row['metadata'] ? JSON.parse(row['metadata']) : {}
+            description: row_hash['description'],
+            amount: row_hash['amount'],
+            category: row_hash['category'],
+            metadata: metadata
           )
           imported += 1
         rescue => e
-          errors << { row: row.to_h, error: e.message }
+          errors << {row: row_hash, error: e.message}
         end
       end
-      csv_import.update!(status: 'completed', result: { imported: imported, errors: errors })
+      csv_import.update!(status: 'completed', result: {imported: imported, errors: errors})
     rescue => e
-      csv_import.update!(status: 'failed', result: { error: e.message })
+      csv_import.update!(status: 'failed', result: {error: e.message})
     end
   end
 end

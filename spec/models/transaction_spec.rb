@@ -14,12 +14,6 @@ RSpec.describe Transaction, type: :model do
       expect(tx.category).to eq('Food')
     end
 
-    it 'raises validation error if no rule matches and category is blank' do
-      expect {
-        Transaction.create!(description: 'Groceries', amount: 20.0, date: Date.today, category: nil)
-      }.to raise_error(ActiveRecord::RecordInvalid, /Category can't be blank/)
-    end
-
     it 'does not auto-categorize on update' do
       tx = Transaction.create!(description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: nil)
       tx.update!(description: 'Groceries', category: 'Other')

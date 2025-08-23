@@ -7,6 +7,7 @@ Rails.application.routes.draw do
         end
       end
       resources :csv_imports, only: [:create]
+      resources :rules
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

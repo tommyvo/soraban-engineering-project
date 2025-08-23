@@ -6,10 +6,9 @@ class AnomalyChecker
   ]
 
   def self.call(transaction)
-    CHECKS.each do |klass|
-      result = klass.constantize.call(transaction)
-      return result if result&.dig(:anomaly)
-    end
-    { anomaly: false }
+    results = CHECKS.map do |klass|
+      klass.constantize.call(transaction)
+    end.compact
+    results.select { |r| r[:anomaly_type].present? }
   end
 end

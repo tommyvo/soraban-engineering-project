@@ -33,11 +33,19 @@ RSpec.describe "Api::V1::Transactions", type: :request do
       expect(json["description"]).to eq("Test Transaction")
     end
 
-    it "returns errors with invalid params" do
-      post "/api/v1/transactions", params: {transaction: {description: ""}}
-      expect(response).to have_http_status(:unprocessable_entity)
+    it "creates a transaction and flags anomalies with incomplete params" do
+      expect {
+        post "/api/v1/transactions", params: {transaction: {description: ""}}
+      }.to change(Transaction, :count).by(1)
+
+      expect(response).to have_http_status(:created)
+
       json = JSON.parse(response.body)
-      expect(json["errors"]).to be_present
+      expect(json["description"]).to eq("")
+
+      tx = Transaction.find(json["id"])
+      expect(tx.anomalies).not_to be_empty
+      expect(tx.anomalies.first.anomaly_type).to eq("MissingData")
     end
   end
 end

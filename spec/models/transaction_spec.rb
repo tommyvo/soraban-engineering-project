@@ -20,4 +20,28 @@ RSpec.describe Transaction, type: :model do
       expect(tx.category).to eq('Other')
     end
   end
+
+  describe 'anomaly detection' do
+    it 'creates a MissingData anomaly if required fields are missing' do
+      tx = Transaction.create(description: nil, amount: nil, date: nil, category: nil)
+      expect(tx.anomalies.count).to eq(1)
+      anomaly = tx.anomalies.first
+      expect(anomaly.anomaly_type).to eq('MissingData')
+      expect(anomaly.reason).to match(/description/)
+      expect(anomaly.reason).to match(/amount/)
+      expect(anomaly.reason).to match(/date/)
+    end
+
+    it 'does not create anomalies if all required fields are present' do
+      tx = Transaction.create(description: 'desc', amount: 1, date: Date.today, category: 'cat')
+      expect(tx.anomalies).to be_empty
+    end
+
+    it 'replaces anomalies on update' do
+      tx = Transaction.create(description: nil, amount: nil, date: nil, category: nil)
+      expect(tx.anomalies.count).to eq(1)
+      tx.update(description: 'desc', amount: 1, date: Date.today, category: 'cat')
+      expect(tx.anomalies).to be_empty
+    end
+  end
 end

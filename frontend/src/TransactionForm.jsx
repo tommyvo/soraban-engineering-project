@@ -61,22 +61,22 @@ export default function TransactionForm({ onSuccess }) {
       <h2>Add Transaction</h2>
       <div>
         <label>Description<br />
-          <input name="description" value={form.description} onChange={handleChange} required />
+          <input name="description" value={form.description} onChange={handleChange} />
         </label>
       </div>
       <div>
         <label>Amount<br />
-          <input name="amount" type="number" step="0.01" value={form.amount} onChange={handleChange} required />
+          <input name="amount" type="number" step="0.01" value={form.amount} onChange={handleChange} />
         </label>
       </div>
       <div>
         <label>Date<br />
-          <input name="date" type="date" value={form.date} onChange={handleChange} required />
+          <input name="date" type="date" value={form.date} onChange={handleChange} />
         </label>
       </div>
       <div>
         <label>Category<br />
-          <input name="category" value={form.category} onChange={handleChange} required />
+          <input name="category" value={form.category} onChange={handleChange} />
         </label>
       </div>
       <div>

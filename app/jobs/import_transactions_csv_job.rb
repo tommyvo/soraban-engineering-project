@@ -15,10 +15,19 @@ class ImportTransactionsCsvJob < ApplicationJob
       CSV.parse(csv_file, headers: true) do |row|
         row_hash = row.to_h
         # Check for required fields
-        required = %w[description amount category]
+
+        required = %w[description amount category date]
         missing = required.select { |f| row_hash[f].blank? }
         if missing.any?
           errors << {row: row_hash, error: "Missing fields: #{missing.join(', ')}"}
+          next
+        end
+
+        # Parse date (MM/DD/YYYY)
+        begin
+          parsed_date = Date.strptime(row_hash['date'], '%m/%d/%Y')
+        rescue => e
+          errors << {row: row_hash, error: 'Invalid date format (expected MM/DD/YYYY)'}
           next
         end
 
@@ -44,6 +53,7 @@ class ImportTransactionsCsvJob < ApplicationJob
             description: row_hash['description'],
             amount: row_hash['amount'],
             category: row_hash['category'],
+            date: parsed_date,
             metadata: metadata
           )
           imported += 1

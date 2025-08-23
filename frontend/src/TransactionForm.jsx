@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 
+const today = new Date().toISOString().slice(0, 10);
 const initialState = {
   description: "",
   amount: "",
   category: "",
+  date: today,
   metadata: ""
 };
 
@@ -31,6 +33,7 @@ export default function TransactionForm({ onSuccess }) {
         description: form.description,
         amount: form.amount,
         category: form.category,
+        date: form.date,
         metadata: metadataObj
       }
     };
@@ -64,6 +67,11 @@ export default function TransactionForm({ onSuccess }) {
       <div>
         <label>Amount<br />
           <input name="amount" type="number" step="0.01" value={form.amount} onChange={handleChange} required />
+        </label>
+      </div>
+      <div>
+        <label>Date<br />
+          <input name="date" type="date" value={form.date} onChange={handleChange} required />
         </label>
       </div>
       <div>

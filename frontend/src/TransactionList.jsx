@@ -42,7 +42,7 @@ export default function TransactionList({ refreshFlag }) {
         <tbody>
           {transactions.map(tx => (
             <tr key={tx.id}>
-              <td style={{ padding: '8px 12px' }}>{new Date(tx.created_at).toLocaleString()}</td>
+              <td style={{ padding: '8px 12px' }}>{tx.date ? new Date(tx.date).toLocaleDateString() : ''}</td>
               <td style={{ padding: '8px 12px' }}>{tx.description}</td>
               <td style={{ padding: '8px 12px' }}>{tx.amount}</td>
               <td style={{ padding: '8px 12px' }}>{tx.category}</td>

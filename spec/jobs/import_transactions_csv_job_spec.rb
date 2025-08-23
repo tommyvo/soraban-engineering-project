@@ -3,7 +3,7 @@ require 'rails_helper'
 describe ImportTransactionsCsvJob, type: :job do
   let(:csv_import) { CsvImport.create!(status: 'pending') }
   let(:csv_content) do
-    "description,amount,category,metadata\nCoffee,3.50,Food,\"{\"\"note\"\":\"\"morning\"\"}\"\nBook,12.99,Education,\"{\"\"author\"\":\"\"Doe\"\"}\""
+    "description,amount,category,date,metadata\nCoffee,3.50,Food,08/23/2025,\"{\"\"note\"\":\"\"morning\"\"}\"\nBook,12.99,Education,08/22/2025,\"{\"\"author\"\":\"\"Doe\"\"}\""
   end
 
   before do
@@ -26,7 +26,7 @@ describe ImportTransactionsCsvJob, type: :job do
 
   context 'edge cases' do
     it 'logs error for missing required fields' do
-      bad_csv = "description,amount,category,created_at\n,3.50,Food,2023-01-01T00:00:00Z"
+      bad_csv = "description,amount,category,date\n,3.50,Food,08/23/2025"
       csv_import.csv.attach(
         io: StringIO.new(bad_csv),
         filename: 'bad.csv',
@@ -40,7 +40,7 @@ describe ImportTransactionsCsvJob, type: :job do
     end
 
     it 'logs error for malformed amount' do
-      bad_csv = "description,amount,category,created_at\nCoffee,notanumber,Food,2023-01-01T00:00:00Z"
+      bad_csv = "description,amount,category,date\nCoffee,notanumber,Food,08/23/2025"
       csv_import.csv.attach(
         io: StringIO.new(bad_csv),
         filename: 'bad.csv',
@@ -54,7 +54,7 @@ describe ImportTransactionsCsvJob, type: :job do
     end
 
     it 'logs error for invalid metadata JSON' do
-      bad_csv = "description,amount,category,created_at,metadata\nCoffee,3.50,Food,2023-01-01T00:00:00Z,{notjson}"
+      bad_csv = "description,amount,category,date,metadata\nCoffee,3.50,Food,08/23/2025,{notjson}"
       csv_import.csv.attach(
         io: StringIO.new(bad_csv),
         filename: 'bad.csv',
@@ -67,9 +67,9 @@ describe ImportTransactionsCsvJob, type: :job do
       expect(csv_import.result['errors'].first['error']).to eq('Invalid metadata JSON')
     end
 
-    it 'logs error for duplicate description, amount, and category' do
-      Transaction.create!(description: 'Coffee', amount: 3.50, category: 'Food')
-      dup_csv = "description,amount,category\nCoffee,3.50,Food"
+    it 'logs error for duplicate description, amount, category, and date' do
+      Transaction.create!(description: 'Coffee', amount: 3.50, category: 'Food', date: Date.strptime('08/23/2025', '%m/%d/%Y'))
+      dup_csv = "description,amount,category,date\nCoffee,3.50,Food,08/23/2025"
       csv_import.csv.attach(
         io: StringIO.new(dup_csv),
         filename: 'dup.csv',

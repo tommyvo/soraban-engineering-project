@@ -128,14 +128,22 @@ yarn install
 
 ## 5. Running the App (Dev Mode)
 
-In the project root:
+Start the Rails API server:
 
 ```bash
 bin/dev
 ```
 
-This will start Rails, Sidekiq, and the frontend (Vite/React) server.
+By default, the server is running on port `3000`
 
+Start the front end Vite server:
+
+```bash
+cd frontend
+yarn vite
+```
+
+Goto http://localhost:5173/ to see it.
 ## 6. Running Tests
 
 ### Backend (RSpec)

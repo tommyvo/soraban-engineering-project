@@ -3,4 +3,13 @@ class Transaction < ApplicationRecord
   validates :amount, presence: true, numericality: true
   validates :category, presence: true
   validates :date, presence: true
+
+  before_validation :auto_categorize, on: :create
+
+  private
+
+  def auto_categorize
+    matched = RuleService.categorize(self)
+    self.category = matched if matched.present?
+  end
 end

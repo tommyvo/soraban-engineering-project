@@ -40,3 +40,60 @@
 .read-the-docs {
   color: #888;
 }
+
+.transaction-table th {
+  border-bottom: 1px solid #ccc;
+  padding: 8px 12px;
+}
+
+.transaction-table td {
+  padding: 8px 12px;
+}
+
+.form-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 24px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.status-success {
+  color: green;
+  margin-top: 8px;
+}
+
+.status-error {
+  color: red;
+  margin-top: 8px;
+}
+
+.csv-import-form {
+  margin-bottom: 24px;
+}
+
+.csv-import-form input[type="file"] {
+  margin-right: 8px;
+}
+
+.csv-import-form button {
+  margin-left: 8px;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+
+.app-card {
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 24px;
+}

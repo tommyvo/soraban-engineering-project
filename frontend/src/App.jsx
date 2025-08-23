@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import TransactionList from './TransactionList';
 import TransactionForm from './TransactionForm';
+import './App.css';
 
 function CsvImportForm({ onSuccess }) {
   const [file, setFile] = useState(null);
@@ -33,18 +34,18 @@ function CsvImportForm({ onSuccess }) {
       setStatus({ success: 'CSV uploaded and import started.' });
       setFile(null);
       if (onSuccess) onSuccess();
-    } catch (err) {
+    } catch {
       setStatus({ error: 'Network error.' });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
+    <form onSubmit={handleSubmit} className="csv-import-form">
       <h3>Import Transactions from CSV</h3>
       <input type="file" accept=".csv,text/csv" onChange={handleFileChange} />
-      <button type="submit" style={{ marginLeft: 8 }}>Upload</button>
-      {status?.error && <div style={{ color: 'red', marginTop: 8 }}>{status.error}</div>}
-      {status?.success && <div style={{ color: 'green', marginTop: 8 }}>{status.success}</div>}
+      <button type="submit">Upload</button>
+      {status?.error && <div className="status-error">{status.error}</div>}
+      {status?.success && <div className="status-success">{status.success}</div>}
     </form>
   );
 }
@@ -54,8 +55,8 @@ function App() {
   const refreshTransactions = useCallback(() => setRefreshFlag(f => f + 1), []);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: 40 }}>
-      <div style={{ margin: '0 auto', background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24 }}>
+    <div className="app-container">
+      <div className="app-card">
         <TransactionList refreshFlag={refreshFlag} />
         <TransactionForm onSuccess={refreshTransactions} />
         <CsvImportForm onSuccess={refreshTransactions} />

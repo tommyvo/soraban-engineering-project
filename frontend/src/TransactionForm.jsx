@@ -51,13 +51,13 @@ export default function TransactionForm({ onSuccess }) {
       } else {
         setStatus({ error: data.errors?.join(", ") || "Error" });
       }
-    } catch (err) {
+    } catch {
       setStatus({ error: "Network error" });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: "2rem auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
+    <form onSubmit={handleSubmit} className="form-container">
       <h2>Add Transaction</h2>
       <div>
         <label>Description<br />
@@ -84,9 +84,9 @@ export default function TransactionForm({ onSuccess }) {
           <input name="metadata" value={form.metadata} onChange={handleChange} placeholder='{"source":"manual"}' />
         </label>
       </div>
-      <button type="submit" style={{ marginTop: 16 }}>Add</button>
-      {status?.success && <div style={{ color: "green", marginTop: 8 }}>{status.success}</div>}
-      {status?.error && <div style={{ color: "red", marginTop: 8 }}>{status.error}</div>}
+      <button type="submit" className="submit-button">Add</button>
+      {status?.success && <div className="status-success">{status.success}</div>}
+      {status?.error && <div className="status-error">{status.error}</div>}
     </form>
   );
 }

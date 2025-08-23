@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
+import './App.css';
 
 export default function TransactionList({ refreshFlag }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selected, setSelected] = useState([]);
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkStatus, setBulkStatus] = useState(null);
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -14,14 +18,49 @@ export default function TransactionList({ refreshFlag }) {
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setTransactions(data);
-      } catch (err) {
+      } catch {
         setError("Could not load transactions");
       } finally {
         setLoading(false);
       }
     }
     fetchTransactions();
-  }, [refreshFlag]);
+  }, [refreshFlag, bulkStatus]);
+
+  const toggleSelect = id => {
+    setSelected(sel =>
+      sel.includes(id) ? sel.filter(x => x !== id) : [...sel, id]
+    );
+  };
+
+  const selectAll = e => {
+    if (e.target.checked) {
+      setSelected(transactions.map(tx => tx.id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    setBulkStatus(null);
+    if (!bulkCategory || selected.length === 0) {
+      setBulkStatus({ error: "Select transactions and enter a category." });
+      return;
+    }
+    try {
+      const res = await fetch("/api/v1/transactions/bulk_update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selected, category: bulkCategory })
+      });
+      if (!res.ok) throw new Error("Bulk update failed");
+      setBulkStatus({ success: "Updated!" });
+      setSelected([]);
+      setBulkCategory("");
+    } catch (err) {
+      setBulkStatus({ error: err.message });
+    }
+  };
 
   if (loading) return <div>Loading transactions...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
@@ -30,22 +69,52 @@ export default function TransactionList({ refreshFlag }) {
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto" }}>
       <h2>Transactions</h2>
-  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div style={{ marginBottom: 16 }}>
+        <input
+          type="text"
+          placeholder="New category"
+          value={bulkCategory}
+          onChange={e => setBulkCategory(e.target.value)}
+          style={{ marginRight: 8 }}
+        />
+        <button onClick={handleBulkUpdate} disabled={selected.length === 0 || !bulkCategory}>
+          Bulk Categorize
+        </button>
+        {bulkStatus?.success && <span style={{ color: 'green', marginLeft: 8 }}>{bulkStatus.success}</span>}
+        {bulkStatus?.error && <span style={{ color: 'red', marginLeft: 8 }}>{bulkStatus.error}</span>}
+      </div>
+      <table className="transaction-table" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ borderBottom: "1px solid #ccc", padding: '8px 12px' }}>Date</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: '8px 12px' }}>Description</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: '8px 12px' }}>Amount</th>
-            <th style={{ borderBottom: "1px solid #ccc", padding: '8px 12px' }}>Category</th>
+            <th>
+              <input
+                type="checkbox"
+                checked={selected.length === transactions.length}
+                onChange={selectAll}
+                aria-label="Select all"
+              />
+            </th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Category</th>
           </tr>
         </thead>
         <tbody>
           {transactions.map(tx => (
             <tr key={tx.id}>
-              <td style={{ padding: '8px 12px' }}>{tx.date ? new Date(tx.date).toLocaleDateString() : ''}</td>
-              <td style={{ padding: '8px 12px' }}>{tx.description}</td>
-              <td style={{ padding: '8px 12px' }}>{tx.amount}</td>
-              <td style={{ padding: '8px 12px' }}>{tx.category}</td>
+              <td style={{ textAlign: 'center' }}>
+                <input
+                  type="checkbox"
+                  checked={selected.includes(tx.id)}
+                  onChange={() => toggleSelect(tx.id)}
+                  aria-label={`Select transaction ${tx.id}`}
+                />
+              </td>
+              <td>{tx.date ? new Date(tx.date).toLocaleDateString() : ''}</td>
+              <td>{tx.description}</td>
+              <td>{tx.amount}</td>
+              <td>{tx.category}</td>
             </tr>
           ))}
         </tbody>

@@ -49,6 +49,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_23_072621) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "rules", force: :cascade do |t|
+    t.string "field", null: false
+    t.string "operator", null: false
+    t.string "value", null: false
+    t.string "category", null: false
+    t.integer "priority", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field", "operator", "priority"], name: "index_rules_on_field_and_operator_and_priority", unique: true
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.string "description"
     t.decimal "amount"

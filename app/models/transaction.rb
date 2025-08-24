@@ -1,7 +1,6 @@
 class Transaction < ApplicationRecord
   has_many :anomalies, dependent: :destroy, foreign_key: 'transaction_id', inverse_of: :txn
 
-  validates :description, uniqueness: { scope: [:amount, :category, :date], message: "with this amount, category, and date already exists" }
   validates :amount, numericality: true, allow_nil: true
 
   before_validation :auto_categorize, on: :create

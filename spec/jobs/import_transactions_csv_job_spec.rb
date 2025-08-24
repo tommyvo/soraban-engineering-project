@@ -54,7 +54,7 @@ describe ImportTransactionsCsvJob, type: :job do
     end
 
 
-    it 'logs error for duplicate description, amount, category, and date' do
+    it 'allows duplicate description, amount, category, and date' do
       create(:transaction, description: 'Coffee', amount: 3.50, category: 'Food', date: Date.strptime('08/23/2025', '%m/%d/%Y'))
       dup_csv = "description,amount,category,date\nCoffee,3.50,Food,08/23/2025"
       csv_import.csv.attach(
@@ -64,9 +64,9 @@ describe ImportTransactionsCsvJob, type: :job do
       )
       expect {
         described_class.perform_now(csv_import.id)
-      }.not_to change { Transaction.count }
+      }.to change { Transaction.count }.by(1)
       csv_import.reload
-      expect(csv_import.result['errors'].first['error']).to match(/already exists/)
+      expect(csv_import.result['errors']).to be_empty
     end
 
     it 'sets status to failed and result with error if CSV parsing explodes' do

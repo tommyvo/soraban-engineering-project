@@ -3,6 +3,7 @@ import TransactionList from './TransactionList';
 import TransactionForm from './TransactionForm';
 import RuleManager from './RuleManager';
 import Navigation from './Navigation';
+import ReviewPage from './ReviewPage';
 import './App.css';
 
 function CsvImportForm({ onSuccess }) {
@@ -67,6 +68,7 @@ function App() {
           <CsvImportForm onSuccess={refreshTransactions} />
         </>}
         {page === 'rules' && <RuleManager />}
+        {page === 'review' && <div className="app-card"><ReviewPage /></div>}
       </div>
     </div>
   );

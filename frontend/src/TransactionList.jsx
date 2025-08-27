@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import './App.css';
+import SpendingBarGraph from './SpendingBarGraph';
 
 export default function TransactionList({ refreshFlag }) {
   const [transactions, setTransactions] = useState([]);
@@ -68,6 +69,7 @@ export default function TransactionList({ refreshFlag }) {
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto" }}>
+      <SpendingBarGraph transactions={transactions} />
       <h2>Transactions</h2>
       <div style={{ marginBottom: 16 }}>
         <input

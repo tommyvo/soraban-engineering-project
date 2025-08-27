@@ -1,24 +1,27 @@
 require 'rails_helper'
 
 describe AnomalyCheckerJob, type: :job do
-  let(:transaction) { instance_double(Transaction, id: 42) }
+  let(:transaction) { create(:transaction, description: nil, amount: nil, date: nil, category: nil) }
 
-  before do
-    allow(Transaction).to receive(:find_by).with(id: 42).and_return(transaction)
-    allow(Transaction).to receive(:find_by).with(id: -1).and_return(nil)
+  it 'creates anomalies and sets approval fields' do
+    expect {
+      described_class.perform_now(transaction.id)
+      transaction.reload
+    }.to change { transaction.anomalies.count }.from(0).to(1)
+    expect(transaction.approved).to eq(false)
+    expect(transaction.anomalies.first.anomaly_type).to eq('MissingData')
   end
 
-  it 'enqueues all anomaly jobs for the transaction' do
-    expect(DuplicateTransactionAnomalyJob).to receive(:perform_later).with(42)
-    expect(MissingDataAnomalyJob).to receive(:perform_later).with(42)
-    expect(UnusualSpendingAnomalyJob).to receive(:perform_later).with(42)
-    described_class.perform_now(42)
+  it 'auto-approves if no anomalies' do
+    tx = create(:transaction, description: 'desc', amount: 1, date: Date.today, category: 'cat')
+    described_class.perform_now(tx.id)
+    tx.reload
+    expect(tx.anomalies).to be_empty
+    expect(tx.approved).to eq(true)
+    expect(tx.reviewed_by).to eq('system')
   end
 
   it 'does nothing if transaction does not exist' do
-    expect(DuplicateTransactionAnomalyJob).not_to receive(:perform_later)
-    expect(MissingDataAnomalyJob).not_to receive(:perform_later)
-    expect(UnusualSpendingAnomalyJob).not_to receive(:perform_later)
     expect {
       described_class.perform_now(-1)
     }.not_to raise_error

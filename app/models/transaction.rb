@@ -3,14 +3,13 @@ class Transaction < ApplicationRecord
 
   validates :amount, numericality: true, allow_nil: true
 
-  before_validation :auto_categorize, on: :create
+  after_commit :enqueue_auto_categorize_job, on: :create
   after_commit :enqueue_anomaly_checker_job, on: [:create, :update]
 
   private
 
-  def auto_categorize
-    matched = RuleService.categorize(self)
-    self.category = matched if matched.present?
+  def enqueue_auto_categorize_job
+    AutoCategorizeTransactionJob.perform_later(self.id)
   end
 
   def enqueue_anomaly_checker_job

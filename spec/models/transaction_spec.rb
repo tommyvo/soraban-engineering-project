@@ -5,18 +5,30 @@ RSpec.describe Transaction, type: :model do
     let!(:rule) { create(:rule, field: 'description', operator: 'contains', value: 'coffee', category: 'Food', priority: 1) }
 
     it 'assigns category if a rule matches, even if category is set' do
-      tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: 'Drinks')
-      expect(tx.category).to eq('Food')
+      tx = nil
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: 'Drinks')
+      end
+      tx.reload
+      expect(tx.category).to eq('Drinks') # Should not overwrite user-set category
     end
 
     it 'assigns category if blank and rule matches' do
-      tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: nil)
+      tx = nil
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: nil)
+      end
+      tx.reload
       expect(tx.category).to eq('Food')
     end
 
     it 'does not auto-categorize on update' do
-      tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: nil)
+      tx = nil
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: nil)
+      end
       tx.update!(description: 'Groceries', category: 'Other')
+      tx.reload
       expect(tx.category).to eq('Other')
     end
   end

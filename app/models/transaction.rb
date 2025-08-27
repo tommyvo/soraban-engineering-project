@@ -1,3 +1,4 @@
+require "action_cable/engine"
 class Transaction < ApplicationRecord
   has_many :anomalies, dependent: :destroy, foreign_key: "transaction_id", inverse_of: :txn
 
@@ -5,6 +6,25 @@ class Transaction < ApplicationRecord
 
   after_commit :enqueue_auto_categorize_job, on: :create
   after_commit :enqueue_anomaly_checker_job, on: [ :create, :update ]
+  unless Rails.env.test?
+    after_commit :broadcast_create, on: :create
+    after_commit :broadcast_update, on: :update
+    after_commit :broadcast_destroy, on: :destroy
+  end
+  def broadcast_create
+    return if Rails.env.test?
+    ::ActionCable.server.broadcast("transactions", { action: "created", transaction: self.as_json })
+  end
+
+  def broadcast_update
+    return if Rails.env.test?
+    ::ActionCable.server.broadcast("transactions", { action: "updated", transaction: self.as_json })
+  end
+
+  def broadcast_destroy
+    return if Rails.env.test?
+    ::ActionCable.server.broadcast("transactions", { action: "destroyed", id: self.id })
+  end
 
   private
 

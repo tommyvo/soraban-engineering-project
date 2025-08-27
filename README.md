@@ -85,6 +85,7 @@ bundle exec rspec
 - The import runs as a background job (Sidekiq), so large files do not block the UI.
 - Real-time progress: As transactions are imported, they appear live in the UI.
 - Handles malformed rows, missing fields, and duplicate detection.
+- **Sample Data:** You can use the provided `spec/support/large_transactions.csv` file to import 90 days worth of transactions for testing or demo purposes.
 
 ### Rule Management & Automated Categorization
 

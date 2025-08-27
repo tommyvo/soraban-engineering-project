@@ -1,3 +1,144 @@
+# Bookkeeping System with Automated Categorization
+
+This application is a scalable bookkeeping system designed for efficient transaction management and review. It allows users to manually add or bulk import transactions, automatically categorize them using flexible rule-based logic, and flag anomalies for review. The system features real-time updates via websockets (ActionCable + Redis), enabling instant feedback on transaction changes across all connected clients. Built with Ruby on Rails and React, it is optimized for handling large datasets and provides a user-friendly dashboard for bulk actions, anomaly detection, and streamlined financial oversight.
+
+# Local Setup & Usage Guide
+
+## Prerequisites
+
+- macOS (tested)
+- Homebrew (https://brew.sh/)
+
+## 1. Install System Dependencies via Homebrew
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install ruby
+brew install postgresql
+brew install redis
+brew install node
+brew install yarn
+```
+
+## 2. Setup Database & Redis
+
+```bash
+brew services start postgresql
+brew services start redis
+```
+
+## 3. Setup Rails Backend
+
+```bash
+bundle install
+bin/rails db:create
+```
+
+## 4. Setup Frontend
+
+```bash
+cd frontend
+yarn install
+```
+
+## 5. Running the App (Dev Mode)
+
+Start the Rails API server and Sidekiq:
+
+```bash
+bin/dev
+```
+
+By default, the server is running on port `3000`
+
+Start the front end Vite server:
+
+```bash
+cd frontend
+yarn vite
+```
+
+Goto http://localhost:5173/ to see it.
+## 6. Running Tests
+
+### Backend (RSpec)
+```bash
+bundle exec rspec
+```
+
+---
+
+## Feature Overview & Usage
+
+### Real-Time Updates (ActionCable + Redis)
+
+- All transaction changes (add, update, delete, bulk categorize, CSV import) are broadcast in real-time to all connected clients using ActionCable and Redis.
+- No manual refresh is needed—UI updates instantly for all users.
+- **How it works:**
+    - Rails backend broadcasts transaction changes to a `transactions` channel.
+    - React frontend subscribes to this channel and updates the UI live.
+    - Redis enables cross-process and background job broadcasting.
+
+### CSV Import
+
+- Import transactions in bulk by uploading a CSV file from the dashboard.
+- The import runs as a background job (Sidekiq), so large files do not block the UI.
+- Real-time progress: As transactions are imported, they appear live in the UI.
+- Handles malformed rows, missing fields, and duplicate detection.
+
+### Rule Management & Automated Categorization
+
+- Create rules to auto-categorize transactions (e.g., "If description contains 'Uber', set category to 'Transport'").
+- Rules are applied automatically to new and imported transactions.
+- Rules can be managed from the dashboard (add, edit, delete).
+
+### Bulk Categorization
+
+- Select multiple transactions in the UI and assign a category in one action.
+- Bulk actions are broadcast in real-time to all clients.
+
+### Anomaly Detection
+
+- The system flags transactions that are:
+    - Unusually large compared to user history
+    - Potential duplicates (same date, amount, and description)
+    - Missing required metadata (e.g., blank description)
+- Flagged transactions are highlighted in the dashboard for review.
+
+### Background Jobs (Sidekiq)
+
+- CSV import and other heavy tasks run in the background using Sidekiq.
+- Ensure Redis is running for both Sidekiq and ActionCable.
+- Monitor Sidekiq jobs at `http://localhost:3000/sidekiq` (if enabled).
+
+## TODO
+
+- [ ] Add pagination to transaction lists for better performance with large datasets
+- [ ] Add user accounts and authentication using Devise
+
+## Advanced Troubleshooting & Tips
+
+- **ActionCable not updating?**
+    - Ensure Redis is running (`brew services start redis`).
+    - Check that `config/cable.yml` uses the Redis adapter in development.
+    - Confirm allowed origins in `config/environments/development.rb` include your frontend URL.
+- **CSV import not showing new transactions?**
+    - Make sure Sidekiq is running (`bin/dev` starts it by default).
+    - Check Sidekiq logs for errors.
+- **Tests failing due to ActionCable?**
+    - Broadcasting is disabled in test mode to avoid flaky tests.
+- **Frontend not updating?**
+    - Check browser console for websocket errors.
+    - Restart both Rails and Vite servers if needed.
+
+---
+- If you see errors, try restarting your terminal and running the steps again.
+- For more help, see the comments in each section above.
+
+---
+
+# 👇 Original Posting Below 👇
+
 # Soraban Engineering Project
 The following is a take-home project for Soraban engineering candidates.
 
@@ -86,80 +227,3 @@ Build a **minimal yet scalable bookkeeping system** with the following features:
 - Kick.co
 - Quickbooks Online
 - Xero
-
-# Local Setup & Usage Guide
-
-## Prerequisites
-
-- macOS (tested)
-- Homebrew (https://brew.sh/)
-
-## 1. Install System Dependencies via Homebrew
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install ruby
-brew install postgresql
-brew install redis
-brew install node
-brew install yarn
-```
-
-## 2. Setup Database & Redis
-
-```bash
-brew services start postgresql
-brew services start redis
-```
-
-## 3. Setup Rails Backend
-
-```bash
-bundle install
-bin/rails db:create
-```
-
-## 4. Setup Frontend
-
-```bash
-cd frontend
-yarn install
-```
-
-## 5. Running the App (Dev Mode)
-
-Start the Rails API server and Sidekiq:
-
-```bash
-bin/dev
-```
-
-By default, the server is running on port `3000`
-
-Start the front end Vite server:
-
-```bash
-cd frontend
-yarn vite
-```
-
-Goto http://localhost:5173/ to see it.
-## 6. Running Tests
-
-### Backend (RSpec)
-```bash
-bundle exec rspec
-```
-
-### Frontend (Jest)
-```bash
-cd frontend
-yarn test
-```
-
----
-
-## Troubleshooting
-- Ensure PostgreSQL and Redis are running (`brew services list`).
-- If you see errors, try restarting your terminal and running the steps again.
-- For more help, see the comments in each section above.

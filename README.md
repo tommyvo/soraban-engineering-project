@@ -87,11 +87,23 @@ bundle exec rspec
 - Handles malformed rows, missing fields, and duplicate detection.
 - **Sample Data:** You can use the provided `spec/support/large_transactions.csv` file to import 90 days worth of transactions for testing or demo purposes.
 
+
 ### Rule Management & Automated Categorization
 
 - Create rules to auto-categorize transactions (e.g., "If description contains 'Uber', set category to 'Transport'").
 - Rules are applied automatically to new and imported transactions.
 - Rules can be managed from the dashboard (add, edit, delete).
+
+#### Running Auto-Categorization and Anomaly Detection via Rake
+
+You can manually trigger auto-categorization and anomaly detection for all transactions using the following rake tasks:
+
+```bash
+rake transactions:auto_categorize
+rake transactions:detect_anomalies
+```
+
+These tasks are useful after importing a large CSV or making bulk changes. They will process all transactions and update categories and anomaly flags as needed.
 
 ### Bulk Categorization
 
@@ -116,6 +128,7 @@ bundle exec rspec
 
 - [ ] Add pagination to transaction lists for better performance with large datasets
 - [ ] Add user accounts and authentication using Devise
+- [ ] Schedule auto-categorization and anomaly detection rake tasks to run periodically via a cron job
 
 ## Advanced Troubleshooting & Tips
 

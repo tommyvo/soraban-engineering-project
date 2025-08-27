@@ -23,44 +23,52 @@ RSpec.describe Transaction, type: :model do
 
   describe 'anomaly detection' do
     it 'does not overwrite user approval on update or anomaly check' do
-      tx = create(:transaction, description: nil, amount: nil, date: nil, category: nil)
-      expect(tx.anomalies.count).to eq(1)
-      expect(tx.approved).to eq(false)
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: nil, amount: nil, date: nil, category: nil)
+        expect(tx.anomalies.count).to eq(1)
+        expect(tx.approved).to eq(false)
 
-      # Simulate user approval
-      user_time = 2.days.from_now
-      tx.update_columns(approved: true, approved_at: user_time, reviewed_by: 'user')
+        # Simulate user approval
+        user_time = 2.days.from_now
+        tx.update_columns(approved: true, approved_at: user_time, reviewed_by: 'user')
 
-      # Update transaction to trigger anomaly check
-      tx.update(description: 'desc')
-      tx.reload
-      expect(tx.approved).to eq(true)
-      expect(tx.approved_at.to_i).to eq(user_time.to_i)
-      expect(tx.reviewed_by).to eq('user')
+        # Update transaction to trigger anomaly check
+        tx.update(description: 'desc')
+        tx.reload
+        expect(tx.approved).to eq(true)
+        expect(tx.approved_at.to_i).to eq(user_time.to_i)
+        expect(tx.reviewed_by).to eq('user')
 
-      # Even if anomalies are present again, approval is not reset
-      tx.update(description: nil)
-      tx.reload
-      expect(tx.approved).to eq(true)
-      expect(tx.reviewed_by).to eq('user')
+        # Even if anomalies are present again, approval is not reset
+        tx.update(description: nil)
+        tx.reload
+        expect(tx.approved).to eq(true)
+        expect(tx.reviewed_by).to eq('user')
+      end
     end
 
     it 'creates a MissingData anomaly if required fields are missing and does not approve' do
-      tx = create(:transaction, description: nil, amount: nil, date: nil, category: nil)
-      expect(tx.anomalies.count).to eq(1)
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: nil, amount: nil, date: nil, category: nil)
+        expect(tx.anomalies.count).to eq(1)
 
-      anomaly = tx.anomalies.first
-      expect(anomaly.anomaly_type).to eq('MissingData')
-      expect(anomaly.reason).to match(/description/)
-      expect(anomaly.reason).to match(/amount/)
-      expect(anomaly.reason).to match(/date/)
-      expect(tx.approved).to eq(false)
-      expect(tx.approved_at).to be_nil
-      expect(tx.reviewed_by).to be_nil
+        anomaly = tx.anomalies.first
+        expect(anomaly.anomaly_type).to eq('MissingData')
+        expect(anomaly.reason).to match(/description/)
+        expect(anomaly.reason).to match(/amount/)
+        expect(anomaly.reason).to match(/date/)
+        expect(tx.approved).to eq(false)
+        expect(tx.approved_at).to be_nil
+        expect(tx.reviewed_by).to be_nil
+      end
     end
 
     it 'does not create anomalies if all required fields are present and is auto-approved' do
-      tx = create(:transaction, description: 'desc', amount: 1, date: Date.today, category: 'cat')
+      tx = nil
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: 'desc', amount: 1, date: Date.today, category: 'cat')
+      end
+      tx.reload
       expect(tx.anomalies).to be_empty
       expect(tx.approved).to eq(true)
       expect(tx.approved_at).not_to be_nil
@@ -68,11 +76,15 @@ RSpec.describe Transaction, type: :model do
     end
 
     it 'replaces anomalies on update and auto-approves if fixed' do
-      tx = create(:transaction, description: nil, amount: nil, date: nil, category: nil)
-      expect(tx.anomalies.count).to eq(1)
-      expect(tx.approved).to eq(false)
+      tx = nil
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: nil, amount: nil, date: nil, category: nil)
+        expect(tx.anomalies.count).to eq(1)
+        expect(tx.approved).to eq(false)
 
-      tx.update(description: 'desc', amount: 1, date: Date.today, category: 'cat')
+        tx.update(description: 'desc', amount: 1, date: Date.today, category: 'cat')
+      end
+      tx.reload
       expect(tx.anomalies).to be_empty
       expect(tx.approved).to eq(true)
       expect(tx.approved_at).not_to be_nil

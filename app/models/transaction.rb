@@ -4,7 +4,7 @@ class Transaction < ApplicationRecord
   validates :amount, numericality: true, allow_nil: true
 
   before_validation :auto_categorize, on: :create
-  after_commit :run_anomaly_checks_and_set_approval, on: [:create, :update]
+  after_commit :enqueue_anomaly_checker_job, on: [:create, :update]
 
   private
 
@@ -13,23 +13,7 @@ class Transaction < ApplicationRecord
     self.category = matched if matched.present?
   end
 
-  def run_anomaly_checks_and_set_approval
-    self.anomalies.destroy_all
-    anomalies = AnomalyChecker.call(self)
-    anomalies.each do |anomaly|
-      self.anomalies.create!(anomaly_type: anomaly[:anomaly_type], reason: anomaly[:reason])
-    end
-
-    if anomalies.empty?
-      # Only auto-approve if not already approved (by user)
-      unless approved && reviewed_by == "user"
-        update_columns(approved: true, approved_at: created_at || Time.current, reviewed_by: "system")
-      end
-    else
-      # Only reset approval if not already approved by user
-      unless approved && reviewed_by == "user"
-        update_columns(approved: false, approved_at: nil, reviewed_by: nil)
-      end
-    end
+  def enqueue_anomaly_checker_job
+    AnomalyCheckerJob.perform_later(self.id)
   end
 end

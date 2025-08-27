@@ -34,18 +34,20 @@ RSpec.describe "Api::V1::Transactions", type: :request do
     end
 
     it "creates a transaction and flags anomalies with incomplete params" do
-      expect {
-        post "/api/v1/transactions", params: {transaction: {description: ""}}
-      }.to change(Transaction, :count).by(1)
+      perform_enqueued_jobs do
+        expect {
+          post "/api/v1/transactions", params: {transaction: {description: ""}}
+        }.to change(Transaction, :count).by(1)
 
-      expect(response).to have_http_status(:created)
+        expect(response).to have_http_status(:created)
 
-      json = JSON.parse(response.body)
-      expect(json["description"]).to eq("")
+        json = JSON.parse(response.body)
+        expect(json["description"]).to eq("")
 
-      tx = Transaction.find(json["id"])
-      expect(tx.anomalies).not_to be_empty
-      expect(tx.anomalies.first.anomaly_type).to eq("MissingData")
+        tx = Transaction.find(json["id"])
+        expect(tx.anomalies).not_to be_empty
+        expect(tx.anomalies.first.anomaly_type).to eq("MissingData")
+      end
     end
   end
 

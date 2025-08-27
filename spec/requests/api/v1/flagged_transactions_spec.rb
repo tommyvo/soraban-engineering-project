@@ -1,17 +1,14 @@
 require 'rails_helper'
 
 describe "GET /api/v1/flagged_transactions", type: :request do
-  let!(:tx_with_anomaly) do
-    Transaction.create!(description: nil, amount: rand(1000..9999), category: 'Test', date: Date.today - rand(1..100))
-  end
-  let!(:tx_without_anomaly) do
-    Transaction.create!(description: 'Normal', amount: rand(10000..19999), category: 'Food', date: Date.today - rand(101..200))
-  end
-
   it "returns only transactions with anomalies and includes anomaly details" do
-    get "/api/v1/flagged_transactions"
-    expect(response).to have_http_status(:ok)
-
+    tx_with_anomaly = nil
+    tx_without_anomaly = nil
+    perform_enqueued_jobs do
+      tx_with_anomaly = Transaction.create!(description: nil, amount: rand(1000..9999), category: 'Test', date: Date.today - rand(1..100))
+      tx_without_anomaly = Transaction.create!(description: 'Normal', amount: rand(10000..19999), category: 'Food', date: Date.today - rand(101..200))
+      get "/api/v1/flagged_transactions"
+    end
     json = JSON.parse(response.body)
     expect(json).to be_an(Array)
 

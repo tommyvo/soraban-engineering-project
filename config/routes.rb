@@ -29,6 +29,9 @@ Rails.application.routes.draw do
   # root "posts#index"
   require "sidekiq/web"
 
+  # Mount ActionCable for websockets
+  mount ActionCable.server => '/cable'
+
   # Mount Sidekiq Web UI (admin only, secure later)
   mount Sidekiq::Web => "/sidekiq"
 end

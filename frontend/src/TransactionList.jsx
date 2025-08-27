@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import './App.css';
 import SpendingBarGraph from './SpendingBarGraph';
+
+import { subscribeToTransactions } from './transactions_subscription';
 
 export default function TransactionList({ refreshFlag }) {
   const [transactions, setTransactions] = useState([]);
@@ -10,7 +12,9 @@ export default function TransactionList({ refreshFlag }) {
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkStatus, setBulkStatus] = useState(null);
 
+  // Fetch transactions initially and on refresh/bulk update
   useEffect(() => {
+    let ignore = false;
     async function fetchTransactions() {
       setLoading(true);
       setError(null);
@@ -18,15 +22,38 @@ export default function TransactionList({ refreshFlag }) {
         const res = await fetch("/api/v1/transactions");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
-        setTransactions(data);
+        if (!ignore) setTransactions(data);
       } catch {
-        setError("Could not load transactions");
+        if (!ignore) setError("Could not load transactions");
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     }
     fetchTransactions();
+    return () => { ignore = true; };
   }, [refreshFlag, bulkStatus]);
+
+  // Real-time updates via ActionCable
+  const transactionsRef = useRef();
+  transactionsRef.current = transactions;
+  useEffect(() => {
+    const sub = subscribeToTransactions({
+      onCreate: (txn) => {
+        // Only add if not already present
+        if (!transactionsRef.current.some(t => t.id === txn.id)) {
+          setTransactions(prev => [txn, ...prev]);
+        }
+      },
+      onUpdate: (txn) => {
+        setTransactions(prev => prev.map(t => t.id === txn.id ? txn : t));
+      },
+      onDestroy: (id) => {
+        setTransactions(prev => prev.filter(t => t.id !== id));
+        setSelected(sel => sel.filter(x => x !== id));
+      }
+    });
+    return () => { if (sub) sub.unsubscribe(); };
+  }, []);
 
   const toggleSelect = id => {
     setSelected(sel =>

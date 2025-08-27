@@ -66,4 +66,7 @@ Rails.application.configure do
 
   # Store files locally.
   config.active_storage.service = :local
+
+  # Allow ActionCable requests from Rails and Vite dev server
+  config.action_cable.allowed_request_origins = [ 'http://localhost:3000', 'http://localhost:5173' ]
 end

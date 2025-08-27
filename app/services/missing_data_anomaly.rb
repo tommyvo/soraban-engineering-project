@@ -1,6 +1,6 @@
 class MissingDataAnomaly
   REQUIRED_FIELDS = %w[description amount date category]
-  ANOMALY_TYPE = 'MissingData'.freeze
+  ANOMALY_TYPE = "MissingData".freeze
 
   def self.call(transaction)
     missing = REQUIRED_FIELDS.select { |field| transaction.send(field).blank? }

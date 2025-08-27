@@ -1,11 +1,11 @@
-require 'csv'
+require "csv"
 
 class ImportTransactionsCsvJob < ApplicationJob
   queue_as :default
 
   def perform(csv_import_id)
     csv_import = CsvImport.find(csv_import_id)
-    csv_import.update!(status: 'processing')
+    csv_import.update!(status: "processing")
     imported = 0
     errors = []
 
@@ -19,21 +19,21 @@ class ImportTransactionsCsvJob < ApplicationJob
         required = %w[description amount category date]
         missing = required.select { |f| row_hash[f].blank? }
         if missing.any?
-          errors << {row: row_hash, error: "Missing fields: #{missing.join(', ')}"}
+          errors << { row: row_hash, error: "Missing fields: #{missing.join(', ')}" }
           next
         end
 
         # Parse date (MM/DD/YYYY)
         begin
-          parsed_date = Date.strptime(row_hash['date'], '%m/%d/%Y')
+          parsed_date = Date.strptime(row_hash["date"], "%m/%d/%Y")
         rescue => e
-          errors << {row: row_hash, error: 'Invalid date format (expected MM/DD/YYYY)'}
+          errors << { row: row_hash, error: "Invalid date format (expected MM/DD/YYYY)" }
           next
         end
 
         # Validate amount
-        unless row_hash['amount'].to_s.match?(/\A-?\d+(\.\d+)?\z/)
-          errors << {row: row_hash, error: 'Invalid amount'}
+        unless row_hash["amount"].to_s.match?(/\A-?\d+(\.\d+)?\z/)
+          errors << { row: row_hash, error: "Invalid amount" }
           next
         end
 
@@ -41,19 +41,19 @@ class ImportTransactionsCsvJob < ApplicationJob
 
         begin
           Transaction.create!(
-            description: row_hash['description'],
-            amount: row_hash['amount'],
-            category: row_hash['category'],
+            description: row_hash["description"],
+            amount: row_hash["amount"],
+            category: row_hash["category"],
             date: parsed_date
           )
           imported += 1
         rescue => e
-          errors << {row: row_hash, error: e.message}
+          errors << { row: row_hash, error: e.message }
         end
       end
-      csv_import.update!(status: 'completed', result: {imported: imported, errors: errors})
+      csv_import.update!(status: "completed", result: { imported: imported, errors: errors })
     rescue => e
-      csv_import.update!(status: 'failed', result: {error: e.message})
+      csv_import.update!(status: "failed", result: { error: e.message })
     end
   end
 end

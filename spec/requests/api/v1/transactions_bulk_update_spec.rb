@@ -7,7 +7,7 @@ describe 'Bulk Categorization API', type: :request do
 
   it 'updates category for selected transactions' do
     post '/api/v1/transactions/bulk_update', params: {
-      ids: [tx1.id, tx2.id],
+      ids: [ tx1.id, tx2.id ],
       category: 'NewCat'
     }
     expect(response).to have_http_status(:ok)
@@ -17,14 +17,14 @@ describe 'Bulk Categorization API', type: :request do
   end
 
   it 'returns error if ids or category missing' do
-    post '/api/v1/transactions/bulk_update', params: {ids: [tx1.id]}
+    post '/api/v1/transactions/bulk_update', params: { ids: [ tx1.id ] }
     expect(response).to have_http_status(:bad_request)
-    post '/api/v1/transactions/bulk_update', params: {category: 'X'}
+    post '/api/v1/transactions/bulk_update', params: { category: 'X' }
     expect(response).to have_http_status(:bad_request)
   end
 
   it 'ignores invalid ids' do
-    post '/api/v1/transactions/bulk_update', params: {ids: [0, tx1.id], category: 'Bulked'}
+    post '/api/v1/transactions/bulk_update', params: { ids: [ 0, tx1.id ], category: 'Bulked' }
     expect(response).to have_http_status(:ok)
     expect(tx1.reload.category).to eq('Bulked')
   end

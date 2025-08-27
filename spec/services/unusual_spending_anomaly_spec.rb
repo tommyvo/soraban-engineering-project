@@ -2,11 +2,11 @@ require 'rails_helper'
 
 describe UnusualSpendingAnomaly do
   before do
-    [10, 12, 13, 15, 16, 18, 20, 22, 25, 30].each do |amt|
+    [ 10, 12, 13, 15, 16, 18, 20, 22, 25, 30 ].each do |amt|
       create(:transaction, description: 'Test', amount: amt, category: 'Food', date: Date.today - rand(1..89))
     end
     # Add some transactions in a different category to ensure they are not included
-    [100, 200, 300].each do |amt|
+    [ 100, 200, 300 ].each do |amt|
       create(:transaction, description: 'Other Category', amount: amt, category: 'Travel', date: Date.today - rand(1..89))
     end
   end

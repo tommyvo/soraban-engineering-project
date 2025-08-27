@@ -1,5 +1,5 @@
 class DuplicateTransactionAnomaly
-  ANOMALY_TYPE = 'DuplicateTransaction'.freeze
+  ANOMALY_TYPE = "DuplicateTransaction".freeze
 
   def self.call(transaction)
     return nil if transaction.id.nil? # not persisted yet

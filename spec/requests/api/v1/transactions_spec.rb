@@ -26,7 +26,7 @@ RSpec.describe "Api::V1::Transactions", type: :request do
   describe "POST /api/v1/transactions" do
     it "creates a new transaction with valid params" do
       expect {
-        post "/api/v1/transactions", params: {transaction: valid_attributes}
+        post "/api/v1/transactions", params: { transaction: valid_attributes }
       }.to change(Transaction, :count).by(1)
       expect(response).to have_http_status(:created)
       json = JSON.parse(response.body)
@@ -36,7 +36,7 @@ RSpec.describe "Api::V1::Transactions", type: :request do
     it "creates a transaction and flags anomalies with incomplete params" do
       perform_enqueued_jobs do
         expect {
-          post "/api/v1/transactions", params: {transaction: {description: ""}}
+          post "/api/v1/transactions", params: { transaction: { description: "" } }
         }.to change(Transaction, :count).by(1)
 
         expect(response).to have_http_status(:created)

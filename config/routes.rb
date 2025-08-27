@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      resources :transactions, only: [:index, :show, :create, :update, :destroy] do
+      resources :transactions, only: [ :index, :show, :create, :update, :destroy ] do
         collection do
           post :bulk_update
         end
@@ -10,9 +10,9 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :csv_imports, only: [:create]
+      resources :csv_imports, only: [ :create ]
       resources :rules
-      resources :flagged_transactions, only: [:index]
+      resources :flagged_transactions, only: [ :index ]
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -27,8 +27,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-  require 'sidekiq/web'
+  require "sidekiq/web"
 
   # Mount Sidekiq Web UI (admin only, secure later)
-  mount Sidekiq::Web => '/sidekiq'
+  mount Sidekiq::Web => "/sidekiq"
 end

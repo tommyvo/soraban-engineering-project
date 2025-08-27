@@ -1,7 +1,7 @@
 module Api
   module V1
     class TransactionsController < ActionController::API
-      before_action :set_transaction, only: [:show, :update, :destroy, :approve]
+      before_action :set_transaction, only: [ :show, :update, :destroy, :approve ]
 
       # PATCH /api/v1/transactions/:id
       def update
@@ -50,7 +50,7 @@ module Api
         ids = params[:ids]
         category = params[:category]
         if ids.blank? || category.blank?
-          return render json: { error: 'ids and category are required' }, status: :bad_request
+          return render json: { error: "ids and category are required" }, status: :bad_request
         end
         updated = Transaction.where(id: ids).update_all(category: category, updated_at: Time.current)
         render json: { updated: updated }, status: :ok

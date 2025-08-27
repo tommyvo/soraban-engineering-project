@@ -3,7 +3,7 @@ class Rule < ApplicationRecord
   OPERATORS = %w[contains > < =].freeze
 
   validates :field, :operator, :value, :category, :priority, presence: true
-  validates :priority, uniqueness: { scope: [:field, :operator], message: "should be unique per field/operator" }
+  validates :priority, uniqueness: { scope: [ :field, :operator ], message: "should be unique per field/operator" }
   validates :field, inclusion: { in: FIELDS }
   validates :operator, inclusion: { in: OPERATORS }
 

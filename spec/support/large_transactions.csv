@@ -1,0 +1,274 @@
+description,amount,category,date
+Rent,3500,Housing,05/31/2025
+Groceries - Safeway,120,Groceries,06/01/2025
+Public Transit - Clipper,4,Transportation,06/01/2025
+Coffee - Blue Bottle,6,Food & Drink,06/01/2025
+Lunch - Sweetgreen,15,Food & Drink,06/02/2025
+Amazon Web Services,30,Utilities,06/02/2025
+Spotify Subscription,10,Entertainment,06/02/2025
+Groceries - Trader Joe's,80,Groceries,06/03/2025
+Uber to Work,18,Transportation,06/03/2025
+Coffee - Philz,5,Food & Drink,06/03/2025
+Lunch - Chipotle,14,Food & Drink,06/04/2025
+GitHub Subscription,7,Utilities,06/04/2025
+Movie - AMC Metreon,16,Entertainment,06/04/2025
+Groceries - Whole Foods,95,Groceries,06/05/2025
+Public Transit - Clipper,4,Transportation,06/05/2025
+Coffee - Blue Bottle,6,Food & Drink,06/05/2025
+Lunch - Local Cafe,13,Food & Drink,06/06/2025
+Amazon Purchase,45,Shopping,06/06/2025
+Apple iCloud,3,Utilities,06/06/2025
+Groceries - Safeway,110,Groceries,06/07/2025
+Uber to Friend's Place,22,Transportation,06/07/2025
+Coffee - Ritual,5,Food & Drink,06/07/2025
+Lunch - Sweetgreen,15,Food & Drink,06/08/2025
+Netflix Subscription,16,Entertainment,06/08/2025
+Public Transit - Clipper,4,Transportation,06/08/2025
+Groceries - Trader Joe's,85,Groceries,06/09/2025
+Coffee - Philz,5,Food & Drink,06/09/2025
+Lunch - Chipotle,14,Food & Drink,06/09/2025
+Amazon Web Services,30,Utilities,06/10/2025
+Spotify Subscription,10,Entertainment,06/10/2025
+Groceries - Whole Foods,100,Groceries,06/10/2025
+Public Transit - Clipper,4,Transportation,06/11/2025
+Coffee - Blue Bottle,6,Food & Drink,06/11/2025
+Lunch - Local Cafe,13,Food & Drink,06/11/2025
+Uber to Work,18,Transportation,06/12/2025
+Apple iCloud,3,Utilities,06/12/2025
+Groceries - Safeway,115,Groceries,06/12/2025
+Lunch - Sweetgreen,15,Food & Drink,06/13/2025
+Amazon Purchase,60,Shopping,06/13/2025
+GitHub Subscription,7,Utilities,06/13/2025
+Groceries - Trader Joe's,90,Groceries,06/14/2025
+Public Transit - Clipper,4,Transportation,06/14/2025
+Coffee - Ritual,5,Food & Drink,06/14/2025
+Lunch - Chipotle,14,Food & Drink,06/15/2025
+Netflix Subscription,16,Entertainment,06/15/2025
+Groceries - Whole Foods,105,Groceries,06/15/2025
+Public Transit - Clipper,4,Transportation,06/16/2025
+Coffee - Blue Bottle,6,Food & Drink,06/16/2025
+Lunch - Local Cafe,13,Food & Drink,06/16/2025
+Uber to Work,18,Transportation,06/17/2025
+Amazon Web Services,30,Utilities,06/17/2025
+Groceries - Safeway,120,Groceries,06/17/2025
+Spotify Subscription,10,Entertainment,06/18/2025
+Coffee - Philz,5,Food & Drink,06/18/2025
+Lunch - Sweetgreen,15,Food & Drink,06/18/2025
+Groceries - Trader Joe's,95,Groceries,06/19/2025
+Apple iCloud,3,Utilities,06/19/2025
+Public Transit - Clipper,4,Transportation,06/19/2025
+Coffee - Blue Bottle,6,Food & Drink,06/20/2025
+Lunch - Chipotle,14,Food & Drink,06/20/2025
+Amazon Purchase,50,Shopping,06/20/2025
+Groceries - Whole Foods,110,Groceries,06/21/2025
+Public Transit - Clipper,4,Transportation,06/21/2025
+Coffee - Ritual,5,Food & Drink,06/21/2025
+Lunch - Local Cafe,13,Food & Drink,06/22/2025
+Netflix Subscription,16,Entertainment,06/22/2025
+Groceries - Safeway,125,Groceries,06/22/2025
+Uber to Work,18,Transportation,06/23/2025
+Coffee - Philz,5,Food & Drink,06/23/2025
+Lunch - Sweetgreen,15,Food & Drink,06/23/2025
+Amazon Web Services,30,Utilities,06/24/2025
+Spotify Subscription,10,Entertainment,06/24/2025
+Groceries - Trader Joe's,100,Groceries,06/24/2025
+Public Transit - Clipper,4,Transportation,06/25/2025
+Coffee - Blue Bottle,6,Food & Drink,06/25/2025
+Lunch - Chipotle,14,Food & Drink,06/25/2025
+Amazon Purchase,55,Shopping,06/26/2025
+Apple iCloud,3,Utilities,06/26/2025
+Groceries - Whole Foods,115,Groceries,06/26/2025
+Lunch - Local Cafe,13,Food & Drink,06/27/2025
+GitHub Subscription,7,Utilities,06/27/2025
+Groceries - Safeway,130,Groceries,06/27/2025
+Public Transit - Clipper,4,Transportation,06/28/2025
+Coffee - Ritual,5,Food & Drink,06/28/2025
+Lunch - Sweetgreen,15,Food & Drink,06/28/2025
+Netflix Subscription,16,Entertainment,06/29/2025
+Groceries - Trader Joe's,105,Groceries,06/29/2025
+Uber to Work,18,Transportation,06/29/2025
+Coffee - Blue Bottle,6,Food & Drink,06/30/2025
+Lunch - Chipotle,14,Food & Drink,06/30/2025
+Amazon Web Services,30,Utilities,06/30/2025
+Rent,3500,Housing,07/01/2025
+Groceries - Safeway,120,Groceries,07/01/2025
+Public Transit - Clipper,4,Transportation,07/01/2025
+Coffee - Blue Bottle,6,Food & Drink,07/01/2025
+Lunch - Sweetgreen,15,Food & Drink,07/02/2025
+Amazon Web Services,30,Utilities,07/02/2025
+Spotify Subscription,10,Entertainment,07/02/2025
+Groceries - Trader Joe's,80,Groceries,07/03/2025
+Uber to Work,18,Transportation,07/03/2025
+Coffee - Philz,5,Food & Drink,07/03/2025
+Lunch - Chipotle,14,Food & Drink,07/04/2025
+GitHub Subscription,7,Utilities,07/04/2025
+Movie - AMC Metreon,16,Entertainment,07/04/2025
+Groceries - Whole Foods,95,Groceries,07/05/2025
+Public Transit - Clipper,4,Transportation,07/05/2025
+Coffee - Blue Bottle,6,Food & Drink,07/05/2025
+Lunch - Local Cafe,13,Food & Drink,07/06/2025
+Amazon Purchase,45,Shopping,07/06/2025
+Apple iCloud,3,Utilities,07/06/2025
+Groceries - Safeway,110,Groceries,07/07/2025
+Uber to Friend's Place,22,Transportation,07/07/2025
+Coffee - Ritual,5,Food & Drink,07/07/2025
+Lunch - Sweetgreen,15,Food & Drink,07/08/2025
+Netflix Subscription,16,Entertainment,07/08/2025
+Public Transit - Clipper,4,Transportation,07/08/2025
+Groceries - Trader Joe's,85,Groceries,07/09/2025
+Coffee - Philz,5,Food & Drink,07/09/2025
+Lunch - Chipotle,14,Food & Drink,07/09/2025
+Amazon Web Services,30,Utilities,07/10/2025
+Spotify Subscription,10,Entertainment,07/10/2025
+Groceries - Whole Foods,100,Groceries,07/10/2025
+Public Transit - Clipper,4,Transportation,07/11/2025
+Coffee - Blue Bottle,6,Food & Drink,07/11/2025
+Lunch - Local Cafe,13,Food & Drink,07/11/2025
+Uber to Work,18,Transportation,07/12/2025
+Apple iCloud,3,Utilities,07/12/2025
+Groceries - Safeway,115,Groceries,07/12/2025
+Lunch - Sweetgreen,15,Food & Drink,07/13/2025
+Amazon Purchase,60,Shopping,07/13/2025
+GitHub Subscription,7,Utilities,07/13/2025
+Groceries - Trader Joe's,90,Groceries,07/14/2025
+Public Transit - Clipper,4,Transportation,07/14/2025
+Coffee - Ritual,5,Food & Drink,07/14/2025
+Lunch - Chipotle,14,Food & Drink,07/15/2025
+Netflix Subscription,16,Entertainment,07/15/2025
+Groceries - Whole Foods,105,Groceries,07/15/2025
+Public Transit - Clipper,4,Transportation,07/16/2025
+Coffee - Blue Bottle,6,Food & Drink,07/16/2025
+Lunch - Local Cafe,13,Food & Drink,07/16/2025
+Uber to Work,18,Transportation,07/17/2025
+Amazon Web Services,30,Utilities,07/17/2025
+Groceries - Safeway,120,Groceries,07/17/2025
+Spotify Subscription,10,Entertainment,07/18/2025
+Coffee - Philz,5,Food & Drink,07/18/2025
+Lunch - Sweetgreen,15,Food & Drink,07/18/2025
+Groceries - Trader Joe's,95,Groceries,07/19/2025
+Apple iCloud,3,Utilities,07/19/2025
+Public Transit - Clipper,4,Transportation,07/19/2025
+Coffee - Blue Bottle,6,Food & Drink,07/20/2025
+Lunch - Chipotle,14,Food & Drink,07/20/2025
+Amazon Purchase,50,Shopping,07/20/2025
+Groceries - Whole Foods,110,Groceries,07/21/2025
+Public Transit - Clipper,4,Transportation,07/21/2025
+Coffee - Ritual,5,Food & Drink,07/21/2025
+Lunch - Local Cafe,13,Food & Drink,07/22/2025
+Netflix Subscription,16,Entertainment,07/22/2025
+Groceries - Safeway,125,Groceries,07/22/2025
+Uber to Work,18,Transportation,07/23/2025
+Coffee - Philz,5,Food & Drink,07/23/2025
+Lunch - Sweetgreen,15,Food & Drink,07/23/2025
+Amazon Web Services,30,Utilities,07/24/2025
+Spotify Subscription,10,Entertainment,07/24/2025
+Groceries - Trader Joe's,100,Groceries,07/24/2025
+Public Transit - Clipper,4,Transportation,07/25/2025
+Coffee - Blue Bottle,6,Food & Drink,07/25/2025
+Lunch - Chipotle,14,Food & Drink,07/25/2025
+Amazon Purchase,55,Shopping,07/26/2025
+Apple iCloud,3,Utilities,07/26/2025
+Groceries - Whole Foods,115,Groceries,07/26/2025
+Lunch - Local Cafe,13,Food & Drink,07/27/2025
+GitHub Subscription,7,Utilities,07/27/2025
+Groceries - Safeway,130,Groceries,07/27/2025
+Public Transit - Clipper,4,Transportation,07/28/2025
+Coffee - Ritual,5,Food & Drink,07/28/2025
+Lunch - Sweetgreen,15,Food & Drink,07/28/2025
+Netflix Subscription,16,Entertainment,07/29/2025
+Groceries - Trader Joe's,105,Groceries,07/29/2025
+Uber to Work,18,Transportation,07/29/2025
+Coffee - Blue Bottle,6,Food & Drink,07/30/2025
+Lunch - Chipotle,14,Food & Drink,07/30/2025
+Amazon Web Services,30,Utilities,07/30/2025
+Rent,3500,Housing,08/01/2025
+Groceries - Safeway,120,Groceries,08/01/2025
+Public Transit - Clipper,4,Transportation,08/01/2025
+Coffee - Blue Bottle,6,Food & Drink,08/01/2025
+Lunch - Sweetgreen,15,Food & Drink,08/02/2025
+Amazon Web Services,30,Utilities,08/02/2025
+Spotify Subscription,10,Entertainment,08/02/2025
+Groceries - Trader Joe's,80,Groceries,08/03/2025
+Uber to Work,18,Transportation,08/03/2025
+Coffee - Philz,5,Food & Drink,08/03/2025
+Lunch - Chipotle,14,Food & Drink,08/04/2025
+GitHub Subscription,7,Utilities,08/04/2025
+Movie - AMC Metreon,16,Entertainment,08/04/2025
+Groceries - Whole Foods,95,Groceries,08/05/2025
+Public Transit - Clipper,4,Transportation,08/05/2025
+Coffee - Blue Bottle,6,Food & Drink,08/05/2025
+Lunch - Local Cafe,13,Food & Drink,08/06/2025
+Amazon Purchase,45,Shopping,08/06/2025
+Apple iCloud,3,Utilities,08/06/2025
+Groceries - Safeway,110,Groceries,08/07/2025
+Uber to Friend's Place,22,Transportation,08/07/2025
+Coffee - Ritual,5,Food & Drink,08/07/2025
+Lunch - Sweetgreen,15,Food & Drink,08/08/2025
+Netflix Subscription,16,Entertainment,08/08/2025
+Public Transit - Clipper,4,Transportation,08/08/2025
+Groceries - Trader Joe's,85,Groceries,08/09/2025
+Coffee - Philz,5,Food & Drink,08/09/2025
+Lunch - Chipotle,14,Food & Drink,08/09/2025
+Amazon Web Services,30,Utilities,08/10/2025
+Spotify Subscription,10,Entertainment,08/10/2025
+Groceries - Whole Foods,100,Groceries,08/10/2025
+Public Transit - Clipper,4,Transportation,08/11/2025
+Coffee - Blue Bottle,6,Food & Drink,08/11/2025
+Lunch - Local Cafe,13,Food & Drink,08/11/2025
+Uber to Work,18,Transportation,08/12/2025
+Apple iCloud,3,Utilities,08/12/2025
+Groceries - Safeway,115,Groceries,08/12/2025
+Lunch - Sweetgreen,15,Food & Drink,08/13/2025
+Amazon Purchase,60,Shopping,08/13/2025
+GitHub Subscription,7,Utilities,08/13/2025
+Groceries - Trader Joe's,90,Groceries,08/14/2025
+Public Transit - Clipper,4,Transportation,08/14/2025
+Coffee - Ritual,5,Food & Drink,08/14/2025
+Lunch - Chipotle,14,Food & Drink,08/15/2025
+Netflix Subscription,16,Entertainment,08/15/2025
+Groceries - Whole Foods,105,Groceries,08/15/2025
+Public Transit - Clipper,4,Transportation,08/16/2025
+Coffee - Blue Bottle,6,Food & Drink,08/16/2025
+Lunch - Local Cafe,13,Food & Drink,08/16/2025
+Uber to Work,18,Transportation,08/17/2025
+Amazon Web Services,30,Utilities,08/17/2025
+Groceries - Safeway,120,Groceries,08/17/2025
+Spotify Subscription,10,Entertainment,08/18/2025
+Coffee - Philz,5,Food & Drink,08/18/2025
+Lunch - Sweetgreen,15,Food & Drink,08/18/2025
+Groceries - Trader Joe's,95,Groceries,08/19/2025
+Apple iCloud,3,Utilities,08/19/2025
+Public Transit - Clipper,4,Transportation,08/19/2025
+Coffee - Blue Bottle,6,Food & Drink,08/20/2025
+Lunch - Chipotle,14,Food & Drink,08/20/2025
+Amazon Purchase,50,Shopping,08/20/2025
+Groceries - Whole Foods,110,Groceries,08/21/2025
+Public Transit - Clipper,4,Transportation,08/21/2025
+Coffee - Ritual,5,Food & Drink,08/21/2025
+Lunch - Local Cafe,13,Food & Drink,08/22/2025
+Netflix Subscription,16,Entertainment,08/22/2025
+Groceries - Safeway,125,Groceries,08/22/2025
+Uber to Work,18,Transportation,08/23/2025
+Coffee - Philz,5,Food & Drink,08/23/2025
+Lunch - Sweetgreen,15,Food & Drink,08/23/2025
+Amazon Web Services,30,Utilities,08/24/2025
+Spotify Subscription,10,Entertainment,08/24/2025
+Groceries - Trader Joe's,100,Groceries,08/24/2025
+Public Transit - Clipper,4,Transportation,08/25/2025
+Coffee - Blue Bottle,6,Food & Drink,08/25/2025
+Lunch - Chipotle,14,Food & Drink,08/25/2025
+Amazon Purchase,55,Shopping,08/26/2025
+Apple iCloud,3,Utilities,08/26/2025
+Groceries - Whole Foods,115,Groceries,08/26/2025
+Lunch - Local Cafe,13,Food & Drink,08/27/2025
+GitHub Subscription,7,Utilities,08/27/2025
+Groceries - Safeway,130,Groceries,08/27/2025
+Public Transit - Clipper,4,Transportation,08/28/2025
+Coffee - Ritual,5,Food & Drink,08/28/2025
+Lunch - Sweetgreen,15,Food & Drink,08/28/2025
+Netflix Subscription,16,Entertainment,08/29/2025
+Groceries - Trader Joe's,105,Groceries,08/29/2025
+Uber to Work,18,Transportation,08/29/2025
+Coffee - Blue Bottle,6,Food & Drink,08/30/2025
+Lunch - Chipotle,14,Food & Drink,08/30/2025
+Amazon Web Services,30,Utilities,08/30/2025

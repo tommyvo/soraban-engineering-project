@@ -12,7 +12,7 @@ class UnusualSpendingAnomaly
 
     # Look at last 90 days, same category, excluding this transaction
     window_start = (transaction.date || Date.today) - ROLLING_WINDOW_DAYS
-    txs = Transaction.where('date >= ? AND id != ?', window_start, transaction.id)
+    txs = Transaction.where('date >= ? AND id != ? AND category = ?', window_start, transaction.id, transaction.category)
       .where.not(amount: nil)
     amounts = txs.pluck(:amount).map(&:to_f).sort
 

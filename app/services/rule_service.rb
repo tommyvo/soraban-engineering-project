@@ -4,7 +4,7 @@ class RuleService
     Rule.order(:priority, :id).each do |rule|
       case rule.field
       when "description"
-        if rule.operator == "contains" && transaction.description.to_s.downcase.include?(rule.value.downcase)
+        if rule.operator == "contains" && transaction.description.to_s.include?(rule.value)
           return rule.category
         end
       when "amount"

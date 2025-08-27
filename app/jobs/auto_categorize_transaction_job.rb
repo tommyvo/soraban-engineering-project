@@ -5,12 +5,10 @@ class AutoCategorizeTransactionJob < ApplicationJob
     transaction = Transaction.find_by(id: transaction_id)
     return unless transaction
 
-    # Only auto-categorize if category is blank (don't overwrite user-set category)
-    if transaction.category.blank?
-      matched = RuleService.categorize(transaction)
-      if matched.present?
-        transaction.update_columns(category: matched)
-      end
+    # Always auto-categorize and override category if a rule matches
+    matched = RuleService.categorize(transaction)
+    if matched.present?
+      transaction.update_columns(category: matched)
     end
   end
 end

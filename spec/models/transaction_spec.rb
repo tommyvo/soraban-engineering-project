@@ -10,7 +10,16 @@ RSpec.describe Transaction, type: :model do
         tx = create(:transaction, description: 'Starbucks coffee', amount: 5.0, date: Date.today, category: 'Drinks')
       end
       tx.reload
-      expect(tx.category).to eq('Drinks') # Should not overwrite user-set category
+      expect(tx.category).to eq('Food') # Should always override with rule
+    end
+
+    it 'does not match if case is different' do
+      tx = nil
+      perform_enqueued_jobs do
+        tx = create(:transaction, description: 'Starbucks Coffee', amount: 5.0, date: Date.today, category: 'Drinks')
+      end
+      tx.reload
+      expect(tx.category).to eq('Drinks')
     end
 
     it 'assigns category if blank and rule matches' do

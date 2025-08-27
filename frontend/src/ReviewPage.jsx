@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { subscribeToTransactions } from "./transactions_subscription";
 import './App.css';
 import './review-page.css';
 
@@ -8,8 +9,12 @@ export default function ReviewPage() {
   const [error, setError] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
+  const transactionsRef = useRef();
+  transactionsRef.current = transactions;
 
+  // Initial fetch
   useEffect(() => {
+    let ignore = false;
     async function fetchFlagged() {
       setLoading(true);
       setError(null);
@@ -17,14 +22,42 @@ export default function ReviewPage() {
         const res = await fetch("/api/v1/flagged_transactions");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
-        setTransactions(data);
+        if (!ignore) setTransactions(data);
       } catch {
-        setError("Could not load flagged transactions");
+        if (!ignore) setError("Could not load flagged transactions");
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     }
     fetchFlagged();
+    return () => { ignore = true; };
+  }, []);
+
+  // Live updates via ActionCable
+  useEffect(() => {
+    const sub = subscribeToTransactions({
+      onCreate: (txn) => {
+        // Only add if flagged (has anomalies) and not already present
+        if (Array.isArray(txn.anomalies) && txn.anomalies.length > 0 &&
+            !transactionsRef.current.some(t => t.id === txn.id)) {
+          setTransactions(prev => [txn, ...prev]);
+        }
+      },
+      onUpdate: (txn) => {
+        // If still flagged, update in place; if no longer flagged, remove
+        setTransactions(prev => {
+          if (Array.isArray(txn.anomalies) && txn.anomalies.length > 0) {
+            return prev.map(t => t.id === txn.id ? txn : t);
+          } else {
+            return prev.filter(t => t.id !== txn.id);
+          }
+        });
+      },
+      onDestroy: (id) => {
+        setTransactions(prev => prev.filter(t => t.id !== id));
+      }
+    });
+    return () => { if (sub) sub.unsubscribe(); };
   }, []);
 
   const startEdit = (tx) => {

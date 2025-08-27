@@ -30,7 +30,7 @@ Rails.application.routes.draw do
   require "sidekiq/web"
 
   # Mount ActionCable for websockets
-  mount ActionCable.server => '/cable'
+  mount ActionCable.server => "/cable"
 
   # Mount Sidekiq Web UI (admin only, secure later)
   mount Sidekiq::Web => "/sidekiq"

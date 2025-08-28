@@ -57,6 +57,7 @@ function App() {
   const [refreshFlag, setRefreshFlag] = useState(0);
   const [page, setPage] = useState('transactions');
   const [flaggedCount, setFlaggedCount] = useState(0);
+  const [transactionCount, setTransactionCount] = useState(0);
   const refreshTransactions = useCallback(() => setRefreshFlag(f => f + 1), []);
 
   // Fetch flagged count
@@ -66,28 +67,45 @@ function App() {
       if (!res.ok) return;
       const data = await res.json();
       setFlaggedCount(data.total_count || 0);
-    } catch {}
+  } catch { /* ignore error */ }
+  }, []);
+
+  // Fetch transaction count
+  const fetchTransactionCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/v1/transactions?page=1&per_page=1');
+      if (!res.ok) return;
+      const data = await res.json();
+      setTransactionCount(data.total_count || 0);
+  } catch { /* ignore error */ }
   }, []);
 
   // On mount and when review page is shown, or after bulk refresh
   useEffect(() => {
     fetchFlaggedCount();
-  }, [fetchFlaggedCount, page, refreshFlag]);
+    fetchTransactionCount();
+  }, [fetchFlaggedCount, fetchTransactionCount, page, refreshFlag]);
 
-  // Listen for ActionCable bulk_refresh to update flagged count
+  // Listen for ActionCable events to update flagged and transaction counts
   useEffect(() => {
     // Lazy load to avoid import loop
     import('./transactions_subscription').then(({ subscribeToTransactions }) => {
       const sub = subscribeToTransactions({
-        onBulkRefresh: fetchFlaggedCount
+        onBulkRefresh: () => {
+          fetchFlaggedCount();
+          fetchTransactionCount();
+        },
+        onCreate: fetchTransactionCount,
+        onUpdate: fetchTransactionCount,
+        onDestroy: fetchTransactionCount
       });
       return () => { if (sub) sub.unsubscribe(); };
     });
-  }, [fetchFlaggedCount]);
+  }, [fetchFlaggedCount, fetchTransactionCount]);
 
   return (
     <div className="app-container">
-      <Navigation page={page} setPage={setPage} flaggedCount={flaggedCount} />
+      <Navigation page={page} setPage={setPage} flaggedCount={flaggedCount} transactionCount={transactionCount} />
       <div className="app-card">
         {page === 'transactions' && <>
           <TransactionList refreshFlag={refreshFlag} />

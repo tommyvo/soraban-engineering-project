@@ -1,3 +1,33 @@
+/* Pagination styles for react-paginate */
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pagination li {
+  display: inline;
+}
+
+.pagination li a {
+  color: #4f46e5;
+  text-decoration: none;
+  padding: 0.25em 0.75em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination li.active a {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.pagination li.disabled a {
+  color: #aaa;
+  pointer-events: none;
+}
 #root {
   max-width: 1280px;
   margin: 0 auto;

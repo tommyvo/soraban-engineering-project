@@ -1,26 +1,27 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { subscribeToTransactions } from "./transactions_subscription";
-import './App.css';
-import './review-page.css';
-
-export default function ReviewPage() {
+import ReactPaginate from 'react-paginate';
+function ReviewPage() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
+  const [page, setPage] = useState(0); // 0-based for react-paginate
+  const [totalPages, setTotalPages] = useState(1);
   const transactionsRef = useRef();
   transactionsRef.current = transactions;
 
   // Helper to fetch flagged transactions
-  const fetchFlagged = async () => {
+  const fetchFlagged = async (pageOverride) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/v1/flagged_transactions");
+      const res = await fetch(`/api/v1/flagged_transactions?page=${(pageOverride ?? page)+1}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setTransactions(data);
+      setTransactions(data.transactions || []);
+      setTotalPages(data.total_pages || 1);
     } catch {
       setError("Could not load flagged transactions");
     } finally {
@@ -30,7 +31,8 @@ export default function ReviewPage() {
 
   useEffect(() => {
     fetchFlagged();
-  }, []);
+    // eslint-disable-next-line
+  }, [page]);
 
   // Live updates via ActionCable
   useEffect(() => {
@@ -129,8 +131,7 @@ export default function ReviewPage() {
 
   if (loading) return <div>Loading flagged transactions...</div>;
   if (error) return <div style={ {color: "red"} }>{ error }</div>;
-  if (transactions.length === 0) return <div>No flagged transactions
-    found.</div>;
+  if (transactions.length === 0) return <div>No flagged transactions found.</div>;
 
   return (
     <div className="review-container">
@@ -208,6 +209,23 @@ export default function ReviewPage() {
         )) }
         </tbody>
       </table>
+      <div style={{ margin: '1rem 0', display: 'flex', justifyContent: 'center' }}>
+        <ReactPaginate
+          previousLabel={" Prev"}
+          nextLabel={"Next "}
+          breakLabel={"..."}
+          pageCount={totalPages}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={3}
+          onPageChange={({ selected }) => setPage(selected)}
+          forcePage={page}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          disabledClassName={"disabled"}
+        />
+      </div>
     </div>
   );
 }
+
+export default ReviewPage;

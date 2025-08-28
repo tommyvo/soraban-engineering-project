@@ -1,25 +1,13 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-export default function SpendingBarGraph({ transactions }) {
-  // Get today and last 6 days
-  const days = [...Array(7)].map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return d;
-  });
-
-  // Sum spending per day
-  const data = days.map(day => {
-    const dayStr = day.toISOString().slice(0, 10);
-    const total = transactions
-      .filter(tx => tx.date && tx.amount && tx.amount > 0 && tx.date.slice(0, 10) === dayStr)
-      .reduce((sum, tx) => sum + Number(tx.amount), 0);
-    return {
-      date: day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-      spending: total
-    };
-  });
+// summaryData: [{ date: 'YYYY-MM-DD', spending: number }]
+export default function SpendingBarGraph({ summaryData }) {
+  // Format for chart: { date: 'Aug 27', spending: 123 }
+  const data = (summaryData || []).map(d => ({
+    date: new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+    spending: d.spending
+  }));
 
   return (
     <div style={{ width: '100%', height: 250, marginBottom: 32 }}>

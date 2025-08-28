@@ -14,20 +14,21 @@ describe "GET /api/v1/flagged_transactions", type: :request do
       get "/api/v1/flagged_transactions"
     end
 
-    json = JSON.parse(response.body)
-    expect(json).to be_an(Array)
+  json = JSON.parse(response.body)
+  txs = json["transactions"]
+  expect(txs).to be_an(Array)
 
-    ids = json.map { |t| t["id"] }
-    expect(ids).to include(tx_with_anomaly.id)
-    expect(ids).to include(tx_with_anomaly2.id)
-    expect(ids).not_to include(tx_without_anomaly.id)
+  ids = txs.map { |t| t["id"] }
+  expect(ids).to include(tx_with_anomaly.id)
+  expect(ids).to include(tx_with_anomaly2.id)
+  expect(ids).not_to include(tx_without_anomaly.id)
 
-    # Check ordering by date descending
-    expect(json.first["id"]).to eq(tx_with_anomaly2.id)
-    expect(json.second["id"]).to eq(tx_with_anomaly.id)
+  # Check ordering by date descending
+  expect(txs.first["id"]).to eq(tx_with_anomaly2.id)
+  expect(txs.second["id"]).to eq(tx_with_anomaly.id)
 
-    flagged = json.find { |t| t["id"] == tx_with_anomaly.id }
-    expect(flagged["anomalies"]).not_to be_empty
-    expect(flagged["anomalies"][0]["anomaly_type"]).to eq("MissingData")
+  flagged = txs.find { |t| t["id"] == tx_with_anomaly.id }
+  expect(flagged["anomalies"]).not_to be_empty
+  expect(flagged["anomalies"][0]["anomaly_type"]).to eq("MissingData")
   end
 end

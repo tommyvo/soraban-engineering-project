@@ -26,8 +26,13 @@ module Api
 
       # GET /api/v1/transactions
       def index
-        transactions = Transaction.order(date: :desc)
-        render json: transactions
+        transactions = Transaction.order(date: :desc).page(params[:page]).per(params[:per_page] || 25)
+        render json: {
+          transactions: transactions,
+          total_pages: transactions.total_pages,
+          current_page: transactions.current_page,
+          total_count: transactions.total_count
+        }
       end
 
       # GET /api/v1/transactions/:id
@@ -54,6 +59,20 @@ module Api
         end
         updated = Transaction.where(id: ids).update_all(category: category, updated_at: Time.current)
         render json: { updated: updated }, status: :ok
+      end
+
+      # GET /api/v1/transactions/spending_summary
+      def spending_summary
+        # Get last 7 days (including today)
+        days = (0..6).map { |i| Date.today - (6 - i) }
+        data = days.map do |day|
+          total = Transaction.where(date: day).where("amount > 0").sum(:amount)
+          {
+            date: day.strftime("%Y-%m-%d"),
+            spending: total.to_f
+          }
+        end
+        render json: data
       end
 
       private

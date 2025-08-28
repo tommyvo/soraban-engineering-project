@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import ReactPaginate from 'react-paginate';
 import './App.css';
 import SpendingBarGraph from './SpendingBarGraph';
 
@@ -6,11 +7,14 @@ import { subscribeToTransactions } from './transactions_subscription';
 
 export default function TransactionList({ refreshFlag }) {
   const [transactions, setTransactions] = useState([]);
+  const [spendingSummary, setSpendingSummary] = useState([]); // For spending summary
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState([]);
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkStatus, setBulkStatus] = useState(null);
+  const [page, setPage] = useState(0); // 0-based for react-paginate
+  const [totalPages, setTotalPages] = useState(1);
 
   // Fetch transactions initially and on refresh/bulk update
   useEffect(() => {
@@ -19,32 +23,57 @@ export default function TransactionList({ refreshFlag }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/v1/transactions");
+        const res = await fetch(`/api/v1/transactions?page=${page+1}`); // Kaminari is 1-based
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
-        if (!ignore) setTransactions(data);
+        if (!ignore) {
+          setTransactions(data.transactions || []);
+          setTotalPages(data.total_pages || 1);
+        }
       } catch {
         if (!ignore) setError("Could not load transactions");
       } finally {
         if (!ignore) setLoading(false);
       }
     }
+
+    // Fetch all transactions for the spending summary
+    async function fetchSpendingSummary() {
+      try {
+        const res = await fetch('/api/v1/transactions/spending_summary');
+        if (!res.ok) throw new Error('Failed to fetch spending summary');
+        const data = await res.json();
+        setSpendingSummary(data);
+      } catch {
+        // ignore error for summary
+      }
+    }
+
     fetchTransactions();
+    fetchSpendingSummary();
     return () => { ignore = true; };
-  }, [refreshFlag, bulkStatus]);
+  }, [refreshFlag, bulkStatus, page]);
 
   // Real-time updates via ActionCable
   const transactionsRef = useRef();
   transactionsRef.current = transactions;
+
   // Helper to fetch transactions
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (pageOverride) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/v1/transactions");
+      const res = await fetch(`/api/v1/transactions?page=${(pageOverride ?? page)+1}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setTransactions(data);
+      setTransactions(data.transactions || []);
+      setTotalPages(data.total_pages || 1);
+      // Also refresh spending summary
+      const summaryRes = await fetch('/api/v1/transactions/spending_summary');
+      if (summaryRes.ok) {
+        const summaryData = await summaryRes.json();
+        setSpendingSummary(summaryData);
+      }
     } catch {
       setError("Could not load transactions");
     } finally {
@@ -56,19 +85,20 @@ export default function TransactionList({ refreshFlag }) {
     const sub = subscribeToTransactions({
       onCreate: (txn) => {
         if (!transactionsRef.current.some(t => t.id === txn.id)) {
-          setTransactions(prev => [txn, ...prev]);
+          fetchTransactions();
         }
       },
       onUpdate: (txn) => {
-        setTransactions(prev => prev.map(t => t.id === txn.id ? txn : t));
+        fetchTransactions();
       },
       onDestroy: (id) => {
-        setTransactions(prev => prev.filter(t => t.id !== id));
+        fetchTransactions();
         setSelected(sel => sel.filter(x => x !== id));
       },
-      onBulkRefresh: fetchTransactions
+      onBulkRefresh: () => fetchTransactions()
     });
     return () => { if (sub) sub.unsubscribe(); };
+    // eslint-disable-next-line
   }, []);
 
   const toggleSelect = id => {
@@ -87,17 +117,21 @@ export default function TransactionList({ refreshFlag }) {
 
   const handleBulkUpdate = async () => {
     setBulkStatus(null);
+
     if (!bulkCategory || selected.length === 0) {
       setBulkStatus({ error: "Select transactions and enter a category." });
       return;
     }
+
     try {
       const res = await fetch("/api/v1/transactions/bulk_update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: selected, category: bulkCategory })
       });
+
       if (!res.ok) throw new Error("Bulk update failed");
+
       setBulkStatus({ success: "Updated!" });
       setSelected([]);
       setBulkCategory("");
@@ -112,7 +146,7 @@ export default function TransactionList({ refreshFlag }) {
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto" }}>
-      <SpendingBarGraph transactions={transactions} />
+      <SpendingBarGraph summaryData={spendingSummary} />
       <h2>Transactions</h2>
       <div style={{ marginBottom: 16 }}>
         <input
@@ -134,7 +168,7 @@ export default function TransactionList({ refreshFlag }) {
             <th>
               <input
                 type="checkbox"
-                checked={selected.length === transactions.length}
+                checked={selected.length === transactions.length && transactions.length > 0}
                 onChange={selectAll}
                 aria-label="Select all"
               />
@@ -164,6 +198,21 @@ export default function TransactionList({ refreshFlag }) {
           ))}
         </tbody>
       </table>
+      <div style={{ margin: '1rem 0', display: 'flex', justifyContent: 'center' }}>
+        <ReactPaginate
+          previousLabel={"← Prev"}
+          nextLabel={"Next →"}
+          breakLabel={"..."}
+          pageCount={totalPages}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={3}
+          onPageChange={({ selected }) => setPage(selected)}
+          forcePage={page}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          disabledClassName={"disabled"}
+        />
+      </div>
     </div>
   );
 }

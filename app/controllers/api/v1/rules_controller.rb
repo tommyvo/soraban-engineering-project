@@ -3,8 +3,13 @@ class Api::V1::RulesController < ApplicationController
   before_action :set_rule, only: [ :show, :update, :destroy ]
 
   def index
-    rules = Rule.order(:priority, :id)
-    render json: rules
+    rules = Rule.order(:priority, :id).page(params[:page]).per(params[:per_page] || 25)
+    render json: {
+      rules: rules,
+      total_pages: rules.total_pages,
+      current_page: rules.current_page,
+      total_count: rules.total_count
+    }
   end
 
   def show

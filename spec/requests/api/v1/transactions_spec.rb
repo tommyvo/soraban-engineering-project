@@ -1,5 +1,31 @@
 require 'rails_helper'
 
+describe "GET /api/v1/transactions/spending_summary", type: :request do
+  it "returns the last 7 days of spending totals" do
+    Transaction.delete_all
+    # Create transactions for the last 7 days
+    (0..6).each do |i|
+      create(:transaction, date: Date.today - i, amount: 10 * (i+1))
+    end
+    # Add a transaction outside the range
+    create(:transaction, date: Date.today - 10, amount: 999)
+
+    get "/api/v1/transactions/spending_summary"
+    expect(response).to have_http_status(:ok)
+    json = JSON.parse(response.body)
+    expect(json.length).to eq(7)
+    # Should be ordered oldest to newest
+    expect(json.first["date"]).to eq((Date.today - 6).strftime('%Y-%m-%d'))
+    expect(json.last["date"]).to eq(Date.today.strftime('%Y-%m-%d'))
+    # Check spending values
+    expect(json.last["spending"]).to eq(10.0)
+    expect(json.first["spending"]).to eq(70.0)
+    # Should not include the out-of-range transaction
+    expect(json.map { |d| d["spending"] }).not_to include(999.0)
+  end
+end
+require 'rails_helper'
+
 RSpec.describe "Api::V1::Transactions", type: :request do
   let(:valid_attributes) { attributes_for(:transaction) }
 
@@ -11,10 +37,11 @@ RSpec.describe "Api::V1::Transactions", type: :request do
       get "/api/v1/transactions"
       expect(response).to have_http_status(:ok)
 
-      json = JSON.parse(response.body)
-      expect(json).to be_an(Array)
-      expect(json.first["id"]).to eq(t2.id)
-      expect(json.second["id"]).to eq(t1.id)
+  json = JSON.parse(response.body)
+  txs = json["transactions"]
+  expect(txs).to be_an(Array)
+  expect(txs.first["id"]).to eq(t2.id)
+  expect(txs.second["id"]).to eq(t1.id)
     end
   end
 

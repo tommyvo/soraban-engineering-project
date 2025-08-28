@@ -65,7 +65,7 @@ yarn vite
 ```
 
 Visit http://localhost:5173/ to use the app.
-You can monitor background jobs at http://localhost:3000/sidekiq (if enabled in routes).
+You can monitor background jobs at http://localhost:3000/sidekiq
 ## 6. Running Tests
 
 ### Backend (RSpec)
@@ -160,16 +160,41 @@ These tasks are useful after importing a large CSV or making bulk changes. They 
 
 - CSV import and other heavy tasks run in the background using Sidekiq.
 - Ensure Redis is running for both Sidekiq and ActionCable.
-- Monitor Sidekiq jobs at `http://localhost:3000/sidekiq` (if enabled).
+- Monitor Sidekiq jobs at `http://localhost:3000/sidekiq`.
 
 **How it works:**
 - When a user uploads a CSV or triggers a heavy operation, the backend enqueues a Sidekiq job.
 - Sidekiq workers process jobs asynchronously, freeing up the web server for other requests.
 - As jobs complete, results are broadcast to the frontend via ActionCable for real-time UI updates.
 
+
+## Pagination, Spending Summary, and UI Improvements (2025)
+
+### Pagination (Kaminari + react-paginate)
+
+- All main tables (Transactions, Rules, Review/Flagged Transactions) now support server-side pagination for scalability and performance.
+- Backend paginated endpoints use Kaminari (Rails) and return `total_pages` for frontend navigation.
+- Frontend tables use `react-paginate` for a modern, accessible pagination UI.
+- Custom actions (edit, delete, approve, bulk categorize, etc.) are preserved and work seamlessly with paginated data.
+
+### Spending Summary API & Graph
+
+- The spending summary bar graph now always shows the last 7 days of spending, regardless of pagination or filters.
+- A dedicated backend API endpoint (`/api/v1/transactions/spending_summary`) returns summary data for the last 7 days.
+- The frontend `SpendingBarGraph` component fetches and displays this summary, decoupled from paginated transaction data.
+
+### Review & Rule Management
+
+- The Review (flagged transactions) and Rule Manager tables are now paginated, with all custom actions and real-time updates preserved.
+- Real-time updates (ActionCable) and bulk refreshes work across all paginated tables.
+
+### Other Improvements
+
+- Improved error handling and UI feedback for all async actions.
+- CSV import, bulk actions, and anomaly detection remain fully real-time and scalable.
+
 ## TODO
 
-- [ ] Add pagination to transaction lists for better performance with large datasets
 - [ ] Add user accounts and authentication using Devise
 - [ ] Schedule auto-categorization and anomaly detection rake tasks to run periodically via a cron job
 - [ ] Add search or filtering to transaction table

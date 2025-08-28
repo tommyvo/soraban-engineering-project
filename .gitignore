@@ -38,3 +38,6 @@
 
 # Ignore RubyMine project files
 .idea/
+
+# Ignore VS Code project files
+.vscode/

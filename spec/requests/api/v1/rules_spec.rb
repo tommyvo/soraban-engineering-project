@@ -18,7 +18,8 @@ RSpec.describe "Api::V1::Rules", type: :request do
       get "/api/v1/rules"
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).size).to eq(1)
+  json = JSON.parse(response.body)
+  expect(json["rules"].size).to eq(1)
     end
   end
 

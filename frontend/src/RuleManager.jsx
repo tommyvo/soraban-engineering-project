@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import ReactPaginate from 'react-paginate';
+function RuleManager() {
+  const FIELDS = ["description", "amount"];
+  const OPERATORS = ["contains", ">", "<", "="];
 
-const FIELDS = ["description", "amount"];
-const OPERATORS = ["contains", ">", "<", "="];
-
-export default function RuleManager() {
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,18 +11,23 @@ export default function RuleManager() {
   const [editingId, setEditingId] = useState(null);
   const [editRule, setEditRule] = useState({});
   const [status, setStatus] = useState(null);
+  const [page, setPage] = useState(0); // 0-based for react-paginate
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchRules();
-  }, []);
+    // eslint-disable-next-line
+  }, [page]);
 
   async function fetchRules() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/v1/rules");
+      const res = await fetch(`/api/v1/rules?page=${page+1}`);
       if (!res.ok) throw new Error("Failed to fetch rules");
-      setRules(await res.json());
+      const data = await res.json();
+      setRules(data.rules || []);
+      setTotalPages(data.total_pages || 1);
     } catch (e) {
       setError("Could not load rules");
     } finally {
@@ -159,6 +164,21 @@ export default function RuleManager() {
           ))}
         </tbody>
       </table>
+      <div style={{ margin: '1rem 0', display: 'flex', justifyContent: 'center' }}>
+        <ReactPaginate
+          previousLabel={" Prev"}
+          nextLabel={"Next "}
+          breakLabel={"..."}
+          pageCount={totalPages}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={3}
+          onPageChange={({ selected }) => setPage(selected)}
+          forcePage={page}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          disabledClassName={"disabled"}
+        />
+      </div>
       <form onSubmit={handleCreate} style={{ marginTop: 24, padding: 16, border: '1px solid #ccc', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 8, background: '#fafbfc' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
           <select name="field" value={newRule.field} onChange={e => handleInput(e, setNewRule)}>
@@ -176,3 +196,5 @@ export default function RuleManager() {
     </div>
   );
 }
+
+export default RuleManager;

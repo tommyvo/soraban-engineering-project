@@ -7,10 +7,16 @@ module Api
           .includes(:anomalies)
           .distinct
           .order(date: :desc)
-        render json: transactions.as_json(
-          include: { anomalies: { only: [ :id, :anomaly_type, :reason, :created_at ] } },
-          only: [ :id, :description, :amount, :category, :date, :created_at ]
-        )
+          .page(params[:page]).per(params[:per_page] || 25)
+        render json: {
+          transactions: transactions.as_json(
+            include: { anomalies: { only: [ :id, :anomaly_type, :reason, :created_at ] } },
+            only: [ :id, :description, :amount, :category, :date, :created_at ]
+          ),
+          total_pages: transactions.total_pages,
+          current_page: transactions.current_page,
+          total_count: transactions.total_count
+        }
       end
     end
   end

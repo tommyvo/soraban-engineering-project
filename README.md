@@ -172,6 +172,7 @@ These tasks are useful after importing a large CSV or making bulk changes. They 
 - [ ] Add pagination to transaction lists for better performance with large datasets
 - [ ] Add user accounts and authentication using Devise
 - [ ] Schedule auto-categorization and anomaly detection rake tasks to run periodically via a cron job
+- [ ] Add search or filtering to transaction table
 
 ## Advanced Troubleshooting & Tips
 

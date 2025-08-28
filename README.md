@@ -89,24 +89,24 @@ bundle exec rspec
 - After a large CSV import, the backend broadcasts a special `bulk_refresh` event. The frontend listens for this event and automatically reloads the entire transactions and review tables to ensure all data is up to date.
 ### Bulk Refresh After Large Imports
 
-After a large CSV import, the backend sends a `bulk_refresh` event over websockets. The frontend listens for this event and automatically reloads the full transactions and review tables, ensuring the UI stays in sync with the backend even for very large imports. This prevents missed updates and keeps the user experience seamless.
+After each batch during a large CSV import, the backend sends a `bulk_refresh` event over websockets. The frontend listens for these events and automatically reloads the full transactions and review tables incrementally, ensuring the UI stays in sync with the backend even for very large imports. This prevents missed updates and keeps the user experience seamless.
 
 ### CSV Import
 
 - Import transactions in bulk by uploading a CSV file from the dashboard.
 - The import runs as a background job (Sidekiq), so large files do not block the UI.
-- For very large CSVs, the backend processes the file in batches for efficiency and scalability.
+- For very large CSVs, the backend processes the file in batches of 500 rows for efficiency and scalability.
 - Errors from all batches are aggregated and reported after the import completes.
-- Real-time progress: As transactions are imported, they appear live in the UI.
+- Real-time progress: As each batch of transactions is imported, they appear live in the UI.
 - Handles malformed rows, missing fields, and duplicate detection.
 - **Sample Data:** You can use the provided `spec/support/large_transactions.csv` file to import 90 days worth of transactions for testing or demo purposes.
 
 **How it works:**
 - The user uploads a CSV file via the dashboard UI.
 - The file is sent to the Rails backend, which enqueues a Sidekiq job to process the import in the background.
-- The backend reads the CSV in batches (e.g., 2,000 rows at a time) and enqueues a sub-job for each batch.
+- The backend reads the CSV in batches (e.g., 500 rows at a time) and enqueues a sub-job for each batch.
 - Each batch is validated and imported; errors are collected and aggregated.
-- After all batches are processed, the backend broadcasts a single `bulk_refresh` event via ActionCable, prompting the frontend to reload the transaction list.
+- After each batch is processed, the backend broadcasts a `bulk_refresh` event via ActionCable, prompting the frontend to reload the transaction list incrementally.
 - This approach prevents websocket overload and ensures the UI stays in sync, even for very large imports.
 
 ### Rule Management & Automated Categorization

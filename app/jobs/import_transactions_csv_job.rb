@@ -11,7 +11,7 @@ class ImportTransactionsCsvJob < ApplicationJob
 
     begin
       csv_file = csv_import.csv.download
-      batch_size = 2000
+      batch_size = 500
       rows = []
       total_rows = 0
 
@@ -22,6 +22,9 @@ class ImportTransactionsCsvJob < ApplicationJob
             batch_errors = CsvBatchImportJob.perform_now(csv_import_id, rows)
             all_errors.concat(batch_errors) if batch_errors
             total_rows += rows.size
+
+            # Broadcast after each batch
+            ActionCable.server.broadcast("transactions", { action: "bulk_refresh" })
             rows = []
           end
         end
@@ -31,11 +34,12 @@ class ImportTransactionsCsvJob < ApplicationJob
           batch_errors = CsvBatchImportJob.perform_now(csv_import_id, rows)
           all_errors.concat(batch_errors) if batch_errors
           total_rows += rows.size
+
+          # Broadcast after last batch
+          ActionCable.server.broadcast("transactions", { action: "bulk_refresh" })
         end
       end
 
-      # After batch import, broadcast a single bulk_refresh event
-      ActionCable.server.broadcast("transactions", { action: "bulk_refresh" })
       csv_import.update!(status: "completed", result: { imported: total_rows, errors: all_errors })
     rescue => e
       csv_import.update!(status: "failed", result: { error: e.message, errors: all_errors })

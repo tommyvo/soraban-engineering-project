@@ -1,7 +1,7 @@
 // transactions_subscription.js - subscribes to the transactions channel
 import cable from './cable';
 
-export function subscribeToTransactions({ onCreate, onUpdate, onDestroy }) {
+export function subscribeToTransactions({ onCreate, onUpdate, onDestroy, onBulkRefresh }) {
   const subscription = cable.subscriptions.create(
     { channel: 'TransactionsChannel' },
     {
@@ -9,6 +9,7 @@ export function subscribeToTransactions({ onCreate, onUpdate, onDestroy }) {
         if (data.action === 'created' && onCreate) onCreate(data.transaction);
         if (data.action === 'updated' && onUpdate) onUpdate(data.transaction);
         if (data.action === 'destroyed' && onDestroy) onDestroy(data.id);
+        if (data.action === 'bulk_refresh' && onBulkRefresh) onBulkRefresh();
       }
     }
   );

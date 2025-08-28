@@ -36,10 +36,25 @@ export default function TransactionList({ refreshFlag }) {
   // Real-time updates via ActionCable
   const transactionsRef = useRef();
   transactionsRef.current = transactions;
+  // Helper to fetch transactions
+  const fetchTransactions = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/v1/transactions");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      setTransactions(data);
+    } catch {
+      setError("Could not load transactions");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const sub = subscribeToTransactions({
       onCreate: (txn) => {
-        // Only add if not already present
         if (!transactionsRef.current.some(t => t.id === txn.id)) {
           setTransactions(prev => [txn, ...prev]);
         }
@@ -50,7 +65,8 @@ export default function TransactionList({ refreshFlag }) {
       onDestroy: (id) => {
         setTransactions(prev => prev.filter(t => t.id !== id));
         setSelected(sel => sel.filter(x => x !== id));
-      }
+      },
+      onBulkRefresh: fetchTransactions
     });
     return () => { if (sub) sub.unsubscribe(); };
   }, []);

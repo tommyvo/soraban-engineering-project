@@ -7,53 +7,38 @@ class ImportTransactionsCsvJob < ApplicationJob
     csv_import = CsvImport.find(csv_import_id)
     csv_import.update!(status: "processing")
     imported = 0
-    errors = []
+    all_errors = []
 
     begin
       csv_file = csv_import.csv.download
+      batch_size = 2000
+      rows = []
+      total_rows = 0
 
-      CSV.parse(csv_file, headers: true) do |row|
-        row_hash = row.to_h
-        # Check for required fields
-
-        required = %w[description amount category date]
-        missing = required.select { |f| row_hash[f].blank? }
-        if missing.any?
-          errors << { row: row_hash, error: "Missing fields: #{missing.join(', ')}" }
-          next
+      Transaction.suppress_broadcasts do
+        CSV.parse(csv_file, headers: true) do |row|
+          rows << row.to_h
+          if rows.size >= batch_size
+            batch_errors = CsvBatchImportJob.perform_now(csv_import_id, rows)
+            all_errors.concat(batch_errors) if batch_errors
+            total_rows += rows.size
+            rows = []
+          end
         end
 
-        # Parse date (MM/DD/YYYY)
-        begin
-          parsed_date = Date.strptime(row_hash["date"], "%m/%d/%Y")
-        rescue => e
-          errors << { row: row_hash, error: "Invalid date format (expected MM/DD/YYYY)" }
-          next
-        end
-
-        # Validate amount
-        unless row_hash["amount"].to_s.match?(/\A-?\d+(\.\d+)?\z/)
-          errors << { row: row_hash, error: "Invalid amount" }
-          next
-        end
-
-
-
-        begin
-          Transaction.create!(
-            description: row_hash["description"],
-            amount: row_hash["amount"],
-            category: row_hash["category"],
-            date: parsed_date
-          )
-          imported += 1
-        rescue => e
-          errors << { row: row_hash, error: e.message }
+        # process any remaining rows
+        unless rows.empty?
+          batch_errors = CsvBatchImportJob.perform_now(csv_import_id, rows)
+          all_errors.concat(batch_errors) if batch_errors
+          total_rows += rows.size
         end
       end
-      csv_import.update!(status: "completed", result: { imported: imported, errors: errors })
+
+      # After batch import, broadcast a single bulk_refresh event
+      ActionCable.server.broadcast("transactions", { action: "bulk_refresh" })
+      csv_import.update!(status: "completed", result: { imported: total_rows, errors: all_errors })
     rescue => e
-      csv_import.update!(status: "failed", result: { error: e.message })
+      csv_import.update!(status: "failed", result: { error: e.message, errors: all_errors })
     end
   end
 end

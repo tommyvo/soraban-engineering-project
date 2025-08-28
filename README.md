@@ -79,11 +79,17 @@ bundle exec rspec
 - The Rails backend uses ActionCable to broadcast transaction events (create, update, delete) to a `transactions` channel.
 - The React frontend subscribes to this channel and updates the UI state live when a broadcast is received.
 - Redis is used as the pub/sub backend, enabling real-time updates even from background jobs or across multiple Rails processes.
+- After a large CSV import, the backend broadcasts a special `bulk_refresh` event. The frontend listens for this event and automatically reloads the entire transactions and review tables to ensure all data is up to date.
+### Bulk Refresh After Large Imports
+
+After a large CSV import, the backend sends a `bulk_refresh` event over websockets. The frontend listens for this event and automatically reloads the full transactions and review tables, ensuring the UI stays in sync with the backend even for very large imports. This prevents missed updates and keeps the user experience seamless.
 
 ### CSV Import
 
 - Import transactions in bulk by uploading a CSV file from the dashboard.
 - The import runs as a background job (Sidekiq), so large files do not block the UI.
+- For very large CSVs, the backend processes the file in batches for efficiency and scalability.
+- Errors from all batches are aggregated and reported after the import completes.
 - Real-time progress: As transactions are imported, they appear live in the UI.
 - Handles malformed rows, missing fields, and duplicate detection.
 - **Sample Data:** You can use the provided `spec/support/large_transactions.csv` file to import 90 days worth of transactions for testing or demo purposes.
@@ -91,8 +97,10 @@ bundle exec rspec
 **How it works:**
 - The user uploads a CSV file via the dashboard UI.
 - The file is sent to the Rails backend, which enqueues a Sidekiq job to process the import in the background.
-- Each row is parsed, validated, and saved as a transaction. Duplicates and malformed rows are handled gracefully.
-- As transactions are created, ActionCable broadcasts updates so the UI reflects new data in real time.
+- The backend reads the CSV in batches (e.g., 2,000 rows at a time) and enqueues a sub-job for each batch.
+- Each batch is validated and imported; errors are collected and aggregated.
+- After all batches are processed, the backend broadcasts a single `bulk_refresh` event via ActionCable, prompting the frontend to reload the transaction list.
+- This approach prevents websocket overload and ensures the UI stays in sync, even for very large imports.
 
 ### Rule Management & Automated Categorization
 

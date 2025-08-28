@@ -12,39 +12,36 @@ export default function ReviewPage() {
   const transactionsRef = useRef();
   transactionsRef.current = transactions;
 
-  // Initial fetch
-  useEffect(() => {
-    let ignore = false;
-    async function fetchFlagged() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/v1/flagged_transactions");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        if (!ignore) setTransactions(data);
-      } catch {
-        if (!ignore) setError("Could not load flagged transactions");
-      } finally {
-        if (!ignore) setLoading(false);
-      }
+  // Helper to fetch flagged transactions
+  const fetchFlagged = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/v1/flagged_transactions");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      setTransactions(data);
+    } catch {
+      setError("Could not load flagged transactions");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchFlagged();
-    return () => { ignore = true; };
   }, []);
 
   // Live updates via ActionCable
   useEffect(() => {
     const sub = subscribeToTransactions({
       onCreate: (txn) => {
-        // Only add if flagged (has anomalies) and not already present
         if (Array.isArray(txn.anomalies) && txn.anomalies.length > 0 &&
-            !transactionsRef.current.some(t => t.id === txn.id)) {
+          !transactionsRef.current.some(t => t.id === txn.id)) {
           setTransactions(prev => [txn, ...prev]);
         }
       },
       onUpdate: (txn) => {
-        // If still flagged, update in place; if no longer flagged, remove
         setTransactions(prev => {
           if (Array.isArray(txn.anomalies) && txn.anomalies.length > 0) {
             return prev.map(t => t.id === txn.id ? txn : t);
@@ -55,14 +52,17 @@ export default function ReviewPage() {
       },
       onDestroy: (id) => {
         setTransactions(prev => prev.filter(t => t.id !== id));
-      }
+      },
+      onBulkRefresh: fetchFlagged
     });
-    return () => { if (sub) sub.unsubscribe(); };
+    return () => {
+      if (sub) sub.unsubscribe();
+    };
   }, []);
 
   const startEdit = (tx) => {
     setEditingId(tx.id);
-    setEditData({ ...tx });
+    setEditData({...tx});
   };
 
   const cancelEdit = () => {
@@ -71,19 +71,19 @@ export default function ReviewPage() {
   };
 
   const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+    setEditData({...editData, [e.target.name]: e.target.value});
   };
 
   const saveEdit = async () => {
     try {
-      const res = await fetch(`/api/v1/transactions/${editingId}`, {
+      const res = await fetch(`/api/v1/transactions/${ editingId }`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(editData)
       });
       if (!res.ok) throw new Error("Update failed");
       // refetch the updated transaction to check anomalies
-      const updatedRes = await fetch(`/api/v1/transactions/${editingId}`);
+      const updatedRes = await fetch(`/api/v1/transactions/${ editingId }`);
       if (!updatedRes.ok) throw new Error("Failed to fetch updated transaction");
       const updatedTx = await updatedRes.json();
       setTransactions(txs => {
@@ -92,7 +92,7 @@ export default function ReviewPage() {
           return txs.filter(tx => tx.id !== editingId);
         } else {
           // update in place
-          return txs.map(tx => tx.id === editingId ? { ...tx, ...updatedTx } : tx);
+          return txs.map(tx => tx.id === editingId ? {...tx, ...updatedTx} : tx);
         }
       });
       cancelEdit();
@@ -101,10 +101,9 @@ export default function ReviewPage() {
     }
   };
 
-
   const deleteTx = async (id) => {
     try {
-      const res = await fetch(`/api/v1/transactions/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/v1/transactions/${ id }`, {method: "DELETE"});
       if (!res.ok) throw new Error("Delete failed");
       setTransactions(txs => txs.filter(tx => tx.id !== id));
     } catch {
@@ -120,7 +119,7 @@ export default function ReviewPage() {
 
   const approveTx = async (id) => {
     try {
-      const res = await fetch(`/api/v1/transactions/${id}/approve`, { method: "POST" });
+      const res = await fetch(`/api/v1/transactions/${ id }/approve`, {method: "POST"});
       if (!res.ok) throw new Error("Approve failed");
       setTransactions(txs => txs.filter(tx => tx.id !== id));
     } catch {
@@ -129,67 +128,84 @@ export default function ReviewPage() {
   };
 
   if (loading) return <div>Loading flagged transactions...</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (transactions.length === 0) return <div>No flagged transactions found.</div>;
+  if (error) return <div style={ {color: "red"} }>{ error }</div>;
+  if (transactions.length === 0) return <div>No flagged transactions
+    found.</div>;
 
   return (
     <div className="review-container">
       <h2>Review Flagged Transactions</h2>
       <table className="transaction-table review-table">
         <thead>
-          <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Anomalies</th>
-            <th>Actions</th>
-          </tr>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Category</th>
+          <th>Anomalies</th>
+          <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-          {transactions.map(tx => (
-            <tr key={tx.id}>
-              {editingId === tx.id ? (
-                <>
-                  <td colSpan={6} style={{ padding: 0 }}>
-                    <div className="edit-row-flex">
-                      <input name="date" type="date" value={editData.date || ''} onChange={handleEditChange} className="edit-input" />
-                      <input name="description" value={editData.description || ''} onChange={handleEditChange} className="edit-input" />
-                      <input name="amount" type="number" value={editData.amount || ''} onChange={handleEditChange} className="edit-input" />
-                      <input name="category" value={editData.category || ''} onChange={handleEditChange} className="edit-input" />
-                      <div className="review-actions-col">
-                        <button onClick={saveEdit} className="review-btn save">Update</button>
-                        <button onClick={cancelEdit} className="review-btn cancel">Cancel</button>
-                      </div>
-                    </div>
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td>{tx.date ? new Date(tx.date).toLocaleDateString() : ''}</td>
-                  <td>{tx.description}</td>
-                  <td>{tx.amount}</td>
-                  <td>{tx.category}</td>
-                  <td>
-                    {Array.isArray(tx.anomalies) && tx.anomalies.length > 0 ? (
-                      <ul className="anomaly-list">
-                        {tx.anomalies.map(anom => (
-                          <li key={anom.id}>{anom.reason}</li>
-                        ))}
-                      </ul>
-                    ) : <span className="anomaly-none">None</span>}
-                  </td>
-                  <td>
+        { transactions.map(tx => (
+          <tr key={ tx.id }>
+            { editingId === tx.id ? (
+              <>
+                <td colSpan={ 6 } style={ {padding: 0} }>
+                  <div className="edit-row-flex">
+                    <input name="date" type="date" value={ editData.date || '' }
+                      onChange={ handleEditChange } className="edit-input" />
+                    <input name="description"
+                      value={ editData.description || '' }
+                      onChange={ handleEditChange } className="edit-input" />
+                    <input name="amount" type="number"
+                      value={ editData.amount || '' }
+                      onChange={ handleEditChange } className="edit-input" />
+                    <input name="category" value={ editData.category || '' }
+                      onChange={ handleEditChange } className="edit-input" />
                     <div className="review-actions-col">
-                      <button onClick={() => approveTx(tx.id)} className="review-btn approve">Approve</button>
-                      <button onClick={() => startEdit(tx)} className="review-btn edit">Edit</button>
-                      <button onClick={() => confirmAndDelete(tx.id)} className="review-btn delete">Delete</button>
+                      <button onClick={ saveEdit }
+                        className="review-btn save">Update
+                      </button>
+                      <button onClick={ cancelEdit }
+                        className="review-btn cancel">Cancel
+                      </button>
                     </div>
-                  </td>
-                </>
-              )}
-            </tr>
-          ))}
+                  </div>
+                </td>
+              </>
+            ) : (
+              <>
+                <td>{ tx.date ? new Date(tx.date).toLocaleDateString() : '' }</td>
+                <td>{ tx.description }</td>
+                <td>{ tx.amount }</td>
+                <td>{ tx.category }</td>
+                <td>
+                  { Array.isArray(tx.anomalies) && tx.anomalies.length > 0 ? (
+                    <ul className="anomaly-list">
+                      { tx.anomalies.map(anom => (
+                        <li key={ anom.id }>{ anom.reason }</li>
+                      )) }
+                    </ul>
+                  ) : <span className="anomaly-none">None</span> }
+                </td>
+                <td>
+                  <div className="review-actions-col">
+                    <button onClick={ () => approveTx(tx.id) }
+                      className="review-btn approve">Approve
+                    </button>
+                    <button onClick={ () => startEdit(tx) }
+                      className="review-btn edit">Edit
+                    </button>
+                    <button onClick={ () => confirmAndDelete(tx.id) }
+                      className="review-btn delete">Delete
+                    </button>
+                  </div>
+                </td>
+              </>
+            ) }
+          </tr>
+        )) }
         </tbody>
       </table>
     </div>

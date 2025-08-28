@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { subscribeToTransactions } from "./transactions_subscription";
 import ReactPaginate from 'react-paginate';
-function ReviewPage() {
+
+function ReviewPage({ onFlaggedChange }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -97,6 +98,7 @@ function ReviewPage() {
           return txs.map(tx => tx.id === editingId ? {...tx, ...updatedTx} : tx);
         }
       });
+      if (onFlaggedChange) onFlaggedChange();
       cancelEdit();
     } catch {
       alert("Failed to update transaction");
@@ -108,6 +110,7 @@ function ReviewPage() {
       const res = await fetch(`/api/v1/transactions/${ id }`, {method: "DELETE"});
       if (!res.ok) throw new Error("Delete failed");
       setTransactions(txs => txs.filter(tx => tx.id !== id));
+      if (onFlaggedChange) onFlaggedChange();
     } catch {
       alert("Failed to delete transaction");
     }
@@ -124,6 +127,7 @@ function ReviewPage() {
       const res = await fetch(`/api/v1/transactions/${ id }/approve`, {method: "POST"});
       if (!res.ok) throw new Error("Approve failed");
       setTransactions(txs => txs.filter(tx => tx.id !== id));
+      if (onFlaggedChange) onFlaggedChange();
     } catch {
       alert("Failed to approve transaction");
     }

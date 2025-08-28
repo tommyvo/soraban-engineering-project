@@ -190,7 +190,7 @@ export default function TransactionList({ refreshFlag }) {
                   aria-label={`Select transaction ${tx.id}`}
                 />
               </td>
-              <td>{tx.date ? new Date(tx.date).toLocaleDateString() : ''}</td>
+              <td>{tx.date || ''}</td>
               <td>{tx.description}</td>
               <td>{tx.amount}</td>
               <td>{tx.category}</td>

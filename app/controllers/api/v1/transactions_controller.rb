@@ -26,7 +26,7 @@ module Api
 
       # GET /api/v1/transactions
       def index
-        transactions = Transaction.order(created_at: :desc)
+        transactions = Transaction.order(date: :desc)
         render json: transactions
       end
 

@@ -74,10 +74,11 @@ bundle exec rspec
 
 - All transaction changes (add, update, delete, bulk categorize, CSV import) are broadcast in real-time to all connected clients using ActionCable and Redis.
 - No manual refresh is needed—UI updates instantly for all users.
-- **How it works:**
-    - Rails backend broadcasts transaction changes to a `transactions` channel.
-    - React frontend subscribes to this channel and updates the UI live.
-    - Redis enables cross-process and background job broadcasting.
+
+**How it works:**
+- The Rails backend uses ActionCable to broadcast transaction events (create, update, delete) to a `transactions` channel.
+- The React frontend subscribes to this channel and updates the UI state live when a broadcast is received.
+- Redis is used as the pub/sub backend, enabling real-time updates even from background jobs or across multiple Rails processes.
 
 ### CSV Import
 
@@ -87,12 +88,22 @@ bundle exec rspec
 - Handles malformed rows, missing fields, and duplicate detection.
 - **Sample Data:** You can use the provided `spec/support/large_transactions.csv` file to import 90 days worth of transactions for testing or demo purposes.
 
+**How it works:**
+- The user uploads a CSV file via the dashboard UI.
+- The file is sent to the Rails backend, which enqueues a Sidekiq job to process the import in the background.
+- Each row is parsed, validated, and saved as a transaction. Duplicates and malformed rows are handled gracefully.
+- As transactions are created, ActionCable broadcasts updates so the UI reflects new data in real time.
 
 ### Rule Management & Automated Categorization
 
 - Create rules to auto-categorize transactions (e.g., "If description contains 'Uber', set category to 'Transport'").
 - Rules are applied automatically to new and imported transactions.
 - Rules can be managed from the dashboard (add, edit, delete).
+
+**How it works:**
+- Users define rules in the dashboard UI (e.g., match on description or amount).
+- When a transaction is created or imported, the backend applies all matching rules to assign a category automatically.
+- Rules are stored in the database and can be updated or deleted at any time.
 
 #### Running Auto-Categorization and Anomaly Detection via Rake
 
@@ -105,10 +116,17 @@ rake transactions:detect_anomalies
 
 These tasks are useful after importing a large CSV or making bulk changes. They will process all transactions and update categories and anomaly flags as needed.
 
+
 ### Bulk Categorization
 
 - Select multiple transactions in the UI and assign a category in one action.
 - Bulk actions are broadcast in real-time to all clients.
+
+**How it works:**
+- The user selects multiple transactions in the table and chooses a category.
+- The frontend sends a bulk update request to the backend API.
+- The backend updates all selected transactions and broadcasts the changes via ActionCable.
+- All connected clients see the updates instantly in their UI.
 
 ### Anomaly Detection
 
@@ -118,11 +136,21 @@ These tasks are useful after importing a large CSV or making bulk changes. They 
     - Missing required metadata (e.g., blank description)
 - Flagged transactions are highlighted in the dashboard for review.
 
+**How it works:**
+- When a transaction is created or updated, the backend runs anomaly detection logic (e.g., statistical checks, duplicate detection, missing fields).
+- Transactions with anomalies are flagged and included in the review dashboard.
+- Approving or editing a flagged transaction can clear its anomalies, removing it from the review list.
+
 ### Background Jobs (Sidekiq)
 
 - CSV import and other heavy tasks run in the background using Sidekiq.
 - Ensure Redis is running for both Sidekiq and ActionCable.
 - Monitor Sidekiq jobs at `http://localhost:3000/sidekiq` (if enabled).
+
+**How it works:**
+- When a user uploads a CSV or triggers a heavy operation, the backend enqueues a Sidekiq job.
+- Sidekiq workers process jobs asynchronously, freeing up the web server for other requests.
+- As jobs complete, results are broadcast to the frontend via ActionCable for real-time UI updates.
 
 ## TODO
 

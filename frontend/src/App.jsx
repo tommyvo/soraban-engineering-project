@@ -122,7 +122,7 @@ function App() {
           <CsvImportForm onSuccess={refreshTransactions} />
         </>}
         {page === 'rules' && <RuleManager />}
-        {page === 'review' && <div className="app-card"><ReviewPage onFlaggedChange={fetchFlaggedCount} /> </div>}
+        {page === 'review' && <ReviewPage onFlaggedChange={fetchFlaggedCount} />}
       </div>
     </div>
   );

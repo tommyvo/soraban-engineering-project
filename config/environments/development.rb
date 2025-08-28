@@ -69,4 +69,7 @@ Rails.application.configure do
 
   # Allow ActionCable requests from Rails and Vite dev server
   config.action_cable.allowed_request_origins = [ "http://localhost:3000", "http://localhost:5173" ]
+
+  # Use Sidekiq for background jobs in development
+  config.active_job.queue_adapter = :sidekiq
 end

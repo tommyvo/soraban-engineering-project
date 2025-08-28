@@ -43,22 +43,29 @@ yarn install
 
 ## 5. Running the App (Dev Mode)
 
-Start the Rails API server and Sidekiq:
+### 1. Start Redis (if not already running)
+```bash
+brew services start redis
+```
 
+### 2. Start the Rails API server (port 3000)
 ```bash
 bin/dev
 ```
 
-By default, the server is running on port `3000`
+### 3. Start Sidekiq in a separate terminal
+```bash
+bundle exec sidekiq
+```
 
-Start the front end Vite server:
-
+### 4. Start the frontend Vite server (port 5173)
 ```bash
 cd frontend
 yarn vite
 ```
 
-Goto http://localhost:5173/ to see it.
+Visit http://localhost:5173/ to use the app.
+You can monitor background jobs at http://localhost:3000/sidekiq (if enabled in routes).
 ## 6. Running Tests
 
 ### Backend (RSpec)

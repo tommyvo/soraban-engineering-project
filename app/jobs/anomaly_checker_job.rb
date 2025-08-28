@@ -5,6 +5,7 @@ class AnomalyCheckerJob < ApplicationJob
     transaction = Transaction.find_by(id: transaction_id)
     return unless transaction
 
+    prev_anomaly_count = transaction.anomalies.count
     transaction.anomalies.destroy_all
 
     anomalies = []
@@ -19,6 +20,11 @@ class AnomalyCheckerJob < ApplicationJob
 
     anomalies.each do |anomaly|
       transaction.anomalies.create!(anomaly_type: anomaly[:anomaly_type], reason: anomaly[:reason])
+    end
+
+    # Broadcast if anomaly count changed
+    if prev_anomaly_count != anomalies.size
+      transaction.broadcast_update if transaction.respond_to?(:broadcast_update)
     end
 
     if anomalies.empty?

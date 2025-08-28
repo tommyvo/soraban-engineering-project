@@ -95,9 +95,18 @@ function App() {
           fetchFlaggedCount();
           fetchTransactionCount();
         },
-        onCreate: fetchTransactionCount,
-        onUpdate: fetchTransactionCount,
-        onDestroy: fetchTransactionCount
+        onCreate: () => {
+          fetchTransactionCount();
+          fetchFlaggedCount();
+        },
+        onUpdate: () => {
+          fetchTransactionCount();
+          fetchFlaggedCount();
+        },
+        onDestroy: () => {
+          fetchTransactionCount();
+          fetchFlaggedCount();
+        }
       });
       return () => { if (sub) sub.unsubscribe(); };
     });

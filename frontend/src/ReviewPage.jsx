@@ -1,4 +1,59 @@
 import React, { useState, useEffect, useRef } from "react";
+// Memoized row component for efficient updates
+const TransactionRow = React.memo(function TransactionRow({ tx, editingId, editData, startEdit, cancelEdit, handleEditChange, saveEdit, approveTx, confirmAndDelete }) {
+  if (editingId === tx.id) {
+    return (
+      <tr key={tx.id}>
+        <td colSpan={6} style={{padding: 0}}>
+          <div className="edit-row-flex">
+            <input name="date" type="date" value={editData.date || ''}
+              onChange={handleEditChange} className="edit-input" />
+            <input name="description"
+              value={editData.description || ''}
+              onChange={handleEditChange} className="edit-input" />
+            <input name="amount" type="number"
+              value={editData.amount || ''}
+              onChange={handleEditChange} className="edit-input" />
+            <input name="category" value={editData.category || ''}
+              onChange={handleEditChange} className="edit-input" />
+            <div className="review-actions-col">
+              <button onClick={saveEdit}
+                className="review-btn save">Update
+              </button>
+              <button onClick={cancelEdit}
+                className="review-btn cancel">Cancel
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+  return (
+    <tr key={tx.id}>
+      <td>{tx.date || ''}</td>
+      <td>{tx.description}</td>
+      <td>{tx.amount}</td>
+      <td>{tx.category}</td>
+      <td>
+        {Array.isArray(tx.anomalies) && tx.anomalies.length > 0 ? (
+          <ul className="anomaly-list">
+            {tx.anomalies.map(anom => (
+              <li key={anom.id}>{anom.reason}</li>
+            ))}
+          </ul>
+        ) : <span className="anomaly-none">None</span>}
+      </td>
+      <td>
+        <div className="review-actions-col">
+          <button onClick={() => approveTx(tx.id)} className="review-btn approve">Approve</button>
+          <button onClick={() => startEdit(tx)} className="review-btn edit">Edit</button>
+          <button onClick={() => confirmAndDelete(tx.id)} className="review-btn delete">Delete</button>
+        </div>
+      </td>
+    </tr>
+  );
+});
 import { subscribeToTransactions } from "./transactions_subscription";
 import ReactPaginate from 'react-paginate';
 
@@ -153,63 +208,18 @@ function ReviewPage({ onFlaggedChange }) {
         </thead>
         <tbody>
         { transactions.map(tx => (
-          <tr key={ tx.id }>
-            { editingId === tx.id ? (
-              <>
-                <td colSpan={ 6 } style={ {padding: 0} }>
-                  <div className="edit-row-flex">
-                    <input name="date" type="date" value={ editData.date || '' }
-                      onChange={ handleEditChange } className="edit-input" />
-                    <input name="description"
-                      value={ editData.description || '' }
-                      onChange={ handleEditChange } className="edit-input" />
-                    <input name="amount" type="number"
-                      value={ editData.amount || '' }
-                      onChange={ handleEditChange } className="edit-input" />
-                    <input name="category" value={ editData.category || '' }
-                      onChange={ handleEditChange } className="edit-input" />
-                    <div className="review-actions-col">
-                      <button onClick={ saveEdit }
-                        className="review-btn save">Update
-                      </button>
-                      <button onClick={ cancelEdit }
-                        className="review-btn cancel">Cancel
-                      </button>
-                    </div>
-                  </div>
-                </td>
-              </>
-            ) : (
-              <>
-                <td>{ tx.date || '' }</td>
-                <td>{ tx.description }</td>
-                <td>{ tx.amount }</td>
-                <td>{ tx.category }</td>
-                <td>
-                  { Array.isArray(tx.anomalies) && tx.anomalies.length > 0 ? (
-                    <ul className="anomaly-list">
-                      { tx.anomalies.map(anom => (
-                        <li key={ anom.id }>{ anom.reason }</li>
-                      )) }
-                    </ul>
-                  ) : <span className="anomaly-none">None</span> }
-                </td>
-                <td>
-                  <div className="review-actions-col">
-                    <button onClick={ () => approveTx(tx.id) }
-                      className="review-btn approve">Approve
-                    </button>
-                    <button onClick={ () => startEdit(tx) }
-                      className="review-btn edit">Edit
-                    </button>
-                    <button onClick={ () => confirmAndDelete(tx.id) }
-                      className="review-btn delete">Delete
-                    </button>
-                  </div>
-                </td>
-              </>
-            ) }
-          </tr>
+          <TransactionRow
+            key={tx.id}
+            tx={tx}
+            editingId={editingId}
+            editData={editData}
+            startEdit={startEdit}
+            cancelEdit={cancelEdit}
+            handleEditChange={handleEditChange}
+            saveEdit={saveEdit}
+            approveTx={approveTx}
+            confirmAndDelete={confirmAndDelete}
+          />
         )) }
         </tbody>
       </table>

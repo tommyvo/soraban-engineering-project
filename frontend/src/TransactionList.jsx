@@ -1,4 +1,23 @@
 import React, { useEffect, useState, useRef } from "react";
+// Memoized row component for efficient updates
+const TransactionRow = React.memo(function TransactionRow({ tx, selected, toggleSelect }) {
+  return (
+    <tr key={tx.id}>
+      <td style={{ textAlign: 'center' }}>
+        <input
+          type="checkbox"
+          checked={selected.includes(tx.id)}
+          onChange={() => toggleSelect(tx.id)}
+          aria-label={`Select transaction ${tx.id}`}
+        />
+      </td>
+      <td>{tx.date || ''}</td>
+      <td>{tx.description}</td>
+      <td>{tx.amount}</td>
+      <td>{tx.category}</td>
+    </tr>
+  );
+});
 import ReactPaginate from 'react-paginate';
 import './App.css';
 import SpendingBarGraph from './SpendingBarGraph';
@@ -84,15 +103,18 @@ export default function TransactionList({ refreshFlag }) {
   useEffect(() => {
     const sub = subscribeToTransactions({
       onCreate: (txn) => {
-        if (!transactionsRef.current.some(t => t.id === txn.id)) {
-          fetchTransactions();
-        }
+        setTransactions(prev => {
+          if (!prev.some(t => t.id === txn.id)) {
+            return [txn, ...prev];
+          }
+          return prev;
+        });
       },
       onUpdate: (txn) => {
-        fetchTransactions();
+        setTransactions(prev => prev.map(t => t.id === txn.id ? txn : t));
       },
       onDestroy: (id) => {
-        fetchTransactions();
+        setTransactions(prev => prev.filter(t => t.id !== id));
         setSelected(sel => sel.filter(x => x !== id));
       },
       onBulkRefresh: () => fetchTransactions()
@@ -181,20 +203,12 @@ export default function TransactionList({ refreshFlag }) {
         </thead>
         <tbody>
           {transactions.map(tx => (
-            <tr key={tx.id}>
-              <td style={{ textAlign: 'center' }}>
-                <input
-                  type="checkbox"
-                  checked={selected.includes(tx.id)}
-                  onChange={() => toggleSelect(tx.id)}
-                  aria-label={`Select transaction ${tx.id}`}
-                />
-              </td>
-              <td>{tx.date || ''}</td>
-              <td>{tx.description}</td>
-              <td>{tx.amount}</td>
-              <td>{tx.category}</td>
-            </tr>
+            <TransactionRow
+              key={tx.id}
+              tx={tx}
+              selected={selected}
+              toggleSelect={toggleSelect}
+            />
           ))}
         </tbody>
       </table>

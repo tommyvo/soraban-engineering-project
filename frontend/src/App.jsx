@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import TransactionList from './TransactionList';
 import TransactionForm from './TransactionForm';
 import RuleManager from './RuleManager';
@@ -56,11 +56,38 @@ function CsvImportForm({ onSuccess }) {
 function App() {
   const [refreshFlag, setRefreshFlag] = useState(0);
   const [page, setPage] = useState('transactions');
+  const [flaggedCount, setFlaggedCount] = useState(0);
   const refreshTransactions = useCallback(() => setRefreshFlag(f => f + 1), []);
+
+  // Fetch flagged count
+  const fetchFlaggedCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/v1/flagged_transactions?page=1&per_page=1');
+      if (!res.ok) return;
+      const data = await res.json();
+      setFlaggedCount(data.total_count || 0);
+    } catch {}
+  }, []);
+
+  // On mount and when review page is shown, or after bulk refresh
+  useEffect(() => {
+    fetchFlaggedCount();
+  }, [fetchFlaggedCount, page, refreshFlag]);
+
+  // Listen for ActionCable bulk_refresh to update flagged count
+  useEffect(() => {
+    // Lazy load to avoid import loop
+    import('./transactions_subscription').then(({ subscribeToTransactions }) => {
+      const sub = subscribeToTransactions({
+        onBulkRefresh: fetchFlaggedCount
+      });
+      return () => { if (sub) sub.unsubscribe(); };
+    });
+  }, [fetchFlaggedCount]);
 
   return (
     <div className="app-container">
-      <Navigation page={page} setPage={setPage} />
+      <Navigation page={page} setPage={setPage} flaggedCount={flaggedCount} />
       <div className="app-card">
         {page === 'transactions' && <>
           <TransactionList refreshFlag={refreshFlag} />
@@ -68,7 +95,7 @@ function App() {
           <CsvImportForm onSuccess={refreshTransactions} />
         </>}
         {page === 'rules' && <RuleManager />}
-        {page === 'review' && <div className="app-card"><ReviewPage /></div>}
+        {page === 'review' && <div className="app-card"><ReviewPage onFlaggedChange={fetchFlaggedCount} /> </div>}
       </div>
     </div>
   );
